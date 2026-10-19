@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import type { CollectionEntry } from 'astro:content';
 import { t } from '../i18n/en';
 
@@ -8,13 +9,14 @@ interface Props {
 }
 
 const { siteName, services } = Astro.props;
-const path = Astro.url.pathname;
-const isActive = (prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
+// Pages are built as files (contact.html), so normalise before comparing.
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '');
+const isActive = (prefix: string) => path === url(prefix) || path.startsWith(`${url(prefix)}/`);
 ---
 
 <header class="site-header">
   <div class="container bar">
-    <a class="logo" href="/" aria-label={`${siteName} — ${t.nav.home}`}>{siteName}</a>
+    <a class="logo" href={url('/')} aria-label={`${siteName} — ${t.nav.home}`}>{siteName}</a>
 
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
       <span class="menu-toggle__open">{t.nav.menu}</span>
@@ -23,7 +25,7 @@ const isActive = (prefix: string) => path === prefix || path.startsWith(`${prefi
 
     <nav id="site-nav" class="nav" aria-label="Main">
       <ul role="list" class="nav__list">
-        <li><a href="/work" aria-current={isActive('/work') ? 'page' : undefined}>{t.nav.work}</a></li>
+        <li><a href={url('/work')} aria-current={isActive('/work') ? 'page' : undefined}>{t.nav.work}</a></li>
         <li class="has-sub">
           <button type="button" class="sub-toggle" aria-expanded="false" aria-controls="services-sub">
             {t.nav.services}
@@ -32,7 +34,7 @@ const isActive = (prefix: string) => path === prefix || path.startsWith(`${prefi
             {
               services.map((s) => (
                 <li>
-                  <a href={`/services/${s.id}`} aria-current={isActive(`/services/${s.id}`) ? 'page' : undefined}>
+                  <a href={url(`/services/${s.id}`)} aria-current={isActive(`/services/${s.id}`) ? 'page' : undefined}>
                     {s.data.title}
                   </a>
                 </li>
@@ -40,12 +42,12 @@ const isActive = (prefix: string) => path === prefix || path.startsWith(`${prefi
             }
           </ul>
         </li>
-        <li><a href="/about" aria-current={isActive('/about') ? 'page' : undefined}>{t.nav.about}</a></li>
-        <li><a href="/contact" aria-current={isActive('/contact') ? 'page' : undefined}>{t.nav.contact}</a></li>
+        <li><a href={url('/about')} aria-current={isActive('/about') ? 'page' : undefined}>{t.nav.about}</a></li>
+        <li><a href={url('/contact')} aria-current={isActive('/contact') ? 'page' : undefined}>{t.nav.contact}</a></li>
       </ul>
     </nav>
 
-    <a class="btn header-cta" href="/contact" data-event="start_project_click" data-event-location="header">
+    <a class="btn header-cta" href={url('/contact')} data-event="start_project_click" data-event-location="header">
       {t.nav.startProject}
     </a>
   </div>

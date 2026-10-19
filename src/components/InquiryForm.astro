@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 /**
  * Project Inquiry Form (PRD FR-1), handled by Netlify Forms — no backend.
  * Netlify detects the form from the built HTML (data-netlify), emails each submission
@@ -23,7 +24,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
   class="form"
   name="inquiry"
   method="POST"
-  action="/thank-you"
+  action={url('/thank-you')}
   data-netlify="true"
   netlify-honeypot="company_website"
   data-inquiry-form
@@ -157,7 +158,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
   <div class="actions">
     <button class="btn" type="submit">Send inquiry</button>
     <p class="muted small">
-      Your details are only used to reply to you. See the <a href="/privacy">privacy note</a>.
+      Your details are only used to reply to you. See the <a href={url('/privacy')}>privacy note</a>.
     </p>
   </div>
 </form>

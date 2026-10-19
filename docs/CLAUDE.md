@@ -45,7 +45,12 @@ Source of truth: `docs/PRD — موقع تصوير تجاري (MVP).md` (Arabic)
 - GA4 only loads when `PUBLIC_GA4_ID` is set (after idle). Click events = any element with `data-event` +
   `data-event-location`; same-tab navigations are queued in sessionStorage and sent on the next page.
   `inquiry_submit` fires on `/thank-you` only after a real submit (sessionStorage flag).
-- Env vars: `PUBLIC_GA4_ID`, `SITE_URL` (falls back to Netlify's `URL`), `PUBLIC_GSC_VERIFICATION`. See `.env.example`.
+- Env vars: `PUBLIC_GA4_ID`, `SITE_URL` (falls back to Netlify's `URL`), `PUBLIC_GSC_VERIFICATION`, `BASE_PATH` (sub-path, e.g.
+  `/photography-demo`; default `/`). See `.env.example`.
+- **Every internal link must go through `url()` from `src/lib/url.ts`** so the site also works from a sub-path
+  (GitHub Pages project site: https://mafdyamir.github.io/photography-demo/, deployed by `.github/workflows/pages.yml`).
+  Never hard-code `href="/work"`. On Windows Git Bash prefix commands with `MSYS_NO_PATHCONV=1` when passing `BASE_PATH=/x`.
+- GitHub Pages is a preview only: Netlify Forms and `/admin` (CMS login) do not work there.
 
 ## Docs
 - `docs/SETUP.md` — manual launch steps (GitHub, Netlify, forms, DecapBridge, GA4, domain, Search Console).

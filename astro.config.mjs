@@ -6,8 +6,12 @@ import sitemap from '@astrojs/sitemap';
 // until then Netlify's own `URL` variable (the *.netlify.app address) is used automatically.
 const SITE_URL = process.env.SITE_URL || process.env.URL || 'https://example.netlify.app';
 
+// Sub-path the site is served from (e.g. "/photography-demo" on a GitHub Pages project site). "/" = domain root.
+const BASE_PATH = process.env.BASE_PATH || '/';
+
 export default defineConfig({
   site: SITE_URL,
+  base: BASE_PATH,
   output: 'static',
   trailingSlash: 'never',
   build: { format: 'file' },

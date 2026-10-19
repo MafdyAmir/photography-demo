@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Photo from '../components/Photo.astro';
@@ -44,8 +45,8 @@ const schema = {
         <h1>{settings.heroTitle}</h1>
         <p class="lead">{settings.heroSubtitle}</p>
         <div class="btn-row">
-          <a class="btn btn--ghost" href="/work">{t.common.viewWork}</a>
-          <a class="btn" href="/contact" data-event="start_project_click" data-event-location="home_hero">
+          <a class="btn btn--ghost" href={url('/work')}>{t.common.viewWork}</a>
+          <a class="btn" href={url('/contact')} data-event="start_project_click" data-event-location="home_hero">
             {t.common.startProject}
           </a>
         </div>
@@ -63,7 +64,7 @@ const schema = {
         <div class="container">
           <div class="section-head">
             <h2 id="selected-work">{t.home.selectedWork}</h2>
-            <a class="link-arrow" href="/work">
+            <a class="link-arrow" href={url('/work')}>
               {t.common.seeAll}
             </a>
           </div>
@@ -90,7 +91,7 @@ const schema = {
         {
           services.map((s) => (
             <li>
-              <a class="service" href={`/services/${s.id}`}>
+              <a class="service" href={url(`/services/${s.id}`)}>
                 <div class="service__media">
                   <Photo image={s.data.heroImage} sizes="(min-width: 48em) 33vw, 100vw" />
                 </div>
@@ -183,7 +184,7 @@ const schema = {
       <div class="stack" style="--stack: 1.25rem">
         <p class="eyebrow" id="about">{t.home.about}</p>
         <p class="about__text">{settings.aboutShort}</p>
-        <a class="link-arrow" href="/about">{t.home.aboutMore}</a>
+        <a class="link-arrow" href={url('/about')}>{t.home.aboutMore}</a>
       </div>
     </div>
   </section>

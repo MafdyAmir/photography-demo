@@ -1,4 +1,5 @@
 ---
+import { url } from '../../lib/url';
 import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -40,7 +41,7 @@ const waMessage = whatsappMessages.service(d.title);
         <div class="btn-row">
           <a
             class="btn"
-            href={`/contact?service=${d.category}#inquiry`}
+            href={url(`/contact?service=${d.category}#inquiry`)}
             data-event="start_project_click"
             data-event-location="service_hero"
           >
@@ -77,7 +78,7 @@ const waMessage = whatsappMessages.service(d.title);
         <h2 id="examples">{t.service.examples}</h2>
         {
           examples.length > 0 && (
-            <a class="link-arrow" href={`/work/${d.category}`}>
+            <a class="link-arrow" href={url(`/work/${d.category}`)}>
               {t.common.seeAll} ({CATEGORY_LABELS[d.category]})
             </a>
           )

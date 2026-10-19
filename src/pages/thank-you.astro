@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WhatsAppIcon from '../components/WhatsAppIcon.astro';
 import { getSettings } from '../lib/content';
@@ -29,7 +30,7 @@ const settings = await getSettings();
           <WhatsAppIcon />
           {t.common.chatOnWhatsApp}
         </a>
-        <a class="btn btn--ghost" href="/work">{t.common.viewWork}</a>
+        <a class="btn btn--ghost" href={url('/work')}>{t.common.viewWork}</a>
       </div>
     </div>
   </section>

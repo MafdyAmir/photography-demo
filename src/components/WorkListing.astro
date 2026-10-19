@@ -5,6 +5,7 @@
  * with JS, the filter switches in place and updates the URL without a reload.
  */
 import ProjectCard from './ProjectCard.astro';
+import { BASE, url } from '../lib/url';
 import { CATEGORY_LABELS, type Category, type Project } from '../lib/content';
 import { t } from '../i18n/en';
 
@@ -18,12 +19,12 @@ interface Props {
 
 const { projects, categories, active, titles } = Astro.props;
 const filters: { key: string; label: string; href: string }[] = [
-  { key: 'all', label: t.common.allWork, href: '/work' },
-  ...categories.map((c) => ({ key: c, label: CATEGORY_LABELS[c], href: `/work/${c}` })),
+  { key: 'all', label: t.common.allWork, href: url('/work') },
+  ...categories.map((c) => ({ key: c, label: CATEGORY_LABELS[c], href: url(`/work/${c}`) })),
 ];
 ---
 
-<div class="work" data-work data-titles={JSON.stringify(titles)}>
+<div class="work" data-work data-base={BASE} data-titles={JSON.stringify(titles)}>
   {
     filters.length > 2 && (
       <nav class="filters" aria-label={t.work.filterLabel}>
@@ -121,7 +122,8 @@ const filters: { key: string; label: string; href: string }[] = [
     );
 
     window.addEventListener('popstate', () => {
-      const seg = location.pathname.replace(/\/$/, '').split('/')[2];
+      const rel = location.pathname.slice((root.dataset.base ?? '').length).replace(/\/$/, '');
+      const seg = rel.split('/')[2];
       apply(seg && titles[seg] ? seg : 'all');
     });
   }

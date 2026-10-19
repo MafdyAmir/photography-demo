@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
+import { url } from '../lib/url';
 
 export const GET: APIRoute = ({ site }) =>
   new Response(
-    `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /thank-you\n\nSitemap: ${new URL('sitemap-index.xml', site).href}\n`,
+    `User-agent: *\nAllow: /\nDisallow: ${url('/admin')}\nDisallow: ${url('/thank-you')}\n\nSitemap: ${new URL(url('/sitemap-index.xml'), site).href}\n`,
     { headers: { 'Content-Type': 'text/plain; charset=utf-8' } },
   );

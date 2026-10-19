@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Photo from './Photo.astro';
 import Gallery from './Gallery.astro';
@@ -39,7 +40,7 @@ const brief = [
   <article>
     <header class="container head">
       <nav aria-label="Breadcrumb" class="crumbs eyebrow">
-        <a href="/work">{t.nav.work}</a> / <a href={`/work/${d.category}`}>{CATEGORY_LABELS[d.category]}</a>
+        <a href={url('/work')}>{t.nav.work}</a> / <a href={url(`/work/${d.category}`)}>{CATEGORY_LABELS[d.category]}</a>
       </nav>
       <h1>{d.title}</h1>
       <div class="meta">
@@ -102,7 +103,7 @@ const brief = [
             <h2 id="related">
               {t.project.related} {CATEGORY_LABELS[d.category].toLowerCase()} work
             </h2>
-            <a class="link-arrow" href={`/work/${d.category}`}>
+            <a class="link-arrow" href={url(`/work/${d.category}`)}>
               {t.common.seeAll}
             </a>
           </div>

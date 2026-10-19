@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { t } from '../i18n/en';
 ---
@@ -10,8 +11,8 @@ import { t } from '../i18n/en';
       <h1>This page doesn’t exist.</h1>
       <p class="lead">The link may be old or mistyped.</p>
       <div class="btn-row">
-        <a class="btn" href="/work">{t.common.viewWork}</a>
-        <a class="btn btn--ghost" href="/">{t.nav.home}</a>
+        <a class="btn" href={url('/work')}>{t.common.viewWork}</a>
+        <a class="btn btn--ghost" href={url('/')}>{t.nav.home}</a>
       </div>
     </div>
   </section>

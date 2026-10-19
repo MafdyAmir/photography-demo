@@ -2,6 +2,7 @@
 /** Every page ends with this: Start a Project + WhatsApp (PRD §5). */
 import WhatsAppIcon from './WhatsAppIcon.astro';
 import { getSettings } from '../lib/content';
+import { url } from '../lib/url';
 import { whatsappUrl } from '../lib/whatsapp';
 import { t } from '../i18n/en';
 
@@ -17,7 +18,7 @@ interface Props {
 
 const settings = await getSettings();
 const { title, text, whatsappMessage = settings.whatsappDefaultMessage, service, location } = Astro.props;
-const contactHref = service ? `/contact?service=${service}#inquiry` : '/contact';
+const contactHref = url(service ? `/contact?service=${service}#inquiry` : '/contact');
 ---
 
 <section class="cta section" aria-labelledby={`cta-${location}`}>

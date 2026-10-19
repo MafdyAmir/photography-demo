@@ -68,7 +68,7 @@ const GA_ID = import.meta.env.PUBLIC_GA4_ID as string | undefined;
   });
 
   // inquiry_submit: the form sets this flag right before Netlify redirects here.
-  if (location.pathname.startsWith('/thank-you')) {
+  if (/\/thank-you\/?$/.test(location.pathname)) {
     try {
       const raw = sessionStorage.getItem('inquiry_submitted');
       if (raw) {
