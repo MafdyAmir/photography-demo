@@ -1,0 +1,338 @@
+---
+/**
+ * Project Inquiry Form (PRD FR-1), handled by Netlify Forms — no backend.
+ * Netlify detects the form from the built HTML (data-netlify), emails each submission
+ * and redirects to /thank-you (the `action`). Spam: honeypot field + Netlify's built-in filter.
+ * Without JS the browser's native validation still applies.
+ */
+import { getSettings } from '../lib/content';
+
+const settings = await getSettings();
+
+const NEEDS = [
+  { value: 'product', label: 'Product photography' },
+  { value: 'brand', label: 'Brand campaign' },
+  { value: 'corporate', label: 'Corporate photography' },
+  { value: 'other', label: 'Other' },
+] as const;
+
+const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
+---
+
+<form
+  class="form"
+  name="inquiry"
+  method="POST"
+  action="/thank-you"
+  data-netlify="true"
+  netlify-honeypot="company_website"
+  data-inquiry-form
+>
+  <input type="hidden" name="form-name" value="inquiry" />
+  <!-- Lead source tracking (PRD §2): filled from the visitor's first landing page / UTM tags. -->
+  <input type="hidden" name="utm_source" />
+  <input type="hidden" name="utm_medium" />
+  <input type="hidden" name="utm_campaign" />
+  <input type="hidden" name="landing_page" />
+
+  <p class="hp" aria-hidden="true">
+    <label>Leave this empty <input name="company_website" tabindex="-1" autocomplete="off" /></label>
+  </p>
+
+  <div class="grid">
+    <div class="field">
+      <label for="f-name">Full name <span class="req">*</span></label>
+      <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err" />
+      <p class="err" id="f-name-err" data-msg="Please enter your name."></p>
+    </div>
+
+    <div class="field">
+      <label for="f-company">Company / Brand <span class="req">*</span></label>
+      <input
+        id="f-company"
+        name="company"
+        type="text"
+        autocomplete="organization"
+        required
+        aria-describedby="f-company-err"
+      />
+      <p class="err" id="f-company-err" data-msg="Please enter your company or brand name."></p>
+    </div>
+
+    <div class="field">
+      <label for="f-email">Email</label>
+      <input
+        id="f-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        aria-describedby="f-contact-hint f-email-err"
+      />
+      <p class="err" id="f-email-err" data-msg="Please enter a valid email address."></p>
+    </div>
+
+    <div class="field">
+      <label for="f-phone">Phone / WhatsApp</label>
+      <input
+        id="f-phone"
+        name="phone"
+        type="tel"
+        autocomplete="tel"
+        inputmode="tel"
+        pattern="[\d\s\+\(\)\-]{7,20}"
+        aria-describedby="f-contact-hint f-phone-err"
+      />
+      <p class="err" id="f-phone-err" data-msg="Please enter a valid phone number, e.g. +20 100 123 4567."></p>
+    </div>
+
+    <p class="hint full" id="f-contact-hint">
+      <span class="req">*</span> Email or phone — at least one, so I can reply.
+    </p>
+
+    <div class="field full">
+      <label for="f-need">What do you need? <span class="req">*</span></label>
+      <select id="f-need" name="need" required aria-describedby="f-need-err">
+        <option value="">Choose one…</option>
+        {NEEDS.map((n) => <option value={n.value}>{n.label}</option>)}
+      </select>
+      <p class="err" id="f-need-err" data-msg="Please choose what you need."></p>
+    </div>
+
+    {
+      settings.budgetRanges.length > 0 && (
+        <div class="field">
+          <label for="f-budget">
+            Estimated budget <span class="opt">(optional)</span>
+          </label>
+          <select id="f-budget" name="budget">
+            <option value="">Choose…</option>
+            {settings.budgetRanges.map((b) => (
+              <option>{b}</option>
+            ))}
+            <option>Not sure yet</option>
+          </select>
+        </div>
+      )
+    }
+
+    <div class="field">
+      <label for="f-timeline">Timeline <span class="opt">(optional)</span></label>
+      <select id="f-timeline" name="timeline">
+        <option value="">Choose…</option>
+        {TIMELINES.map((tl) => <option>{tl}</option>)}
+      </select>
+    </div>
+
+    <div class="field full">
+      <label for="f-details">Project details <span class="opt">(optional)</span></label>
+      <textarea
+        id="f-details"
+        name="details"
+        rows="5"
+        maxlength="3000"
+        placeholder="What are you photographing, how many products or people, and where will the images be used?"
+      ></textarea>
+    </div>
+
+    {
+      settings.leadSources.length > 0 && (
+        <div class="field">
+          <label for="f-source">
+            How did you hear about me? <span class="opt">(optional)</span>
+          </label>
+          <select id="f-source" name="heard_about">
+            <option value="">Choose…</option>
+            {settings.leadSources.map((s) => (
+              <option>{s}</option>
+            ))}
+          </select>
+        </div>
+      )
+    }
+  </div>
+
+  <p class="form-error" role="alert" hidden>Please fix the highlighted fields.</p>
+
+  <div class="actions">
+    <button class="btn" type="submit">Send inquiry</button>
+    <p class="muted small">
+      Your details are only used to reply to you. See the <a href="/privacy">privacy note</a>.
+    </p>
+  </div>
+</form>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 1.25rem 1.5rem;
+  }
+  @media (min-width: 40em) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .full {
+      grid-column: 1 / -1;
+    }
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+  }
+  label {
+    font-weight: 500;
+    font-size: var(--step--1);
+  }
+  .req {
+    color: var(--accent);
+  }
+  .opt {
+    font-weight: 400;
+    color: var(--muted);
+  }
+  input,
+  select,
+  textarea {
+    inline-size: 100%;
+    min-block-size: 3rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #b9b2a6;
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: max(16px, 1rem); /* 16px+ stops iOS zooming into fields */
+  }
+  textarea {
+    resize: vertical;
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+    border-color: var(--focus);
+  }
+  [aria-invalid='true'] {
+    border-color: #b3261e;
+    background: #fff8f7;
+  }
+  .err {
+    color: #b3261e;
+    font-size: var(--step--1);
+    min-block-size: 0;
+  }
+  .err:empty {
+    display: none;
+  }
+  .hint {
+    font-size: var(--step--1);
+    color: var(--muted);
+    margin-block-start: -0.5rem;
+  }
+  .hint.is-error {
+    color: #b3261e;
+  }
+  .form-error {
+    margin-block-start: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-inline-start: 3px solid #b3261e;
+    background: #fff8f7;
+    color: #b3261e;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-block-start: 1.75rem;
+  }
+  .small {
+    font-size: var(--step--1);
+  }
+  .hp {
+    position: absolute;
+    inset-inline-start: -10000px;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  import { getAttribution } from '../lib/attribution';
+
+  const form = document.querySelector<HTMLFormElement>('[data-inquiry-form]');
+  if (form) {
+    form.noValidate = true; // we show our own messages next to each field
+    const $ = <T extends Element>(sel: string) => form.querySelector<T>(sel)!;
+    const email = $<HTMLInputElement>('#f-email');
+    const phone = $<HTMLInputElement>('#f-phone');
+    const hint = $<HTMLElement>('#f-contact-hint');
+    const summary = $<HTMLElement>('.form-error');
+
+    // Pre-select "What do you need?" from ?service=product|brand|corporate
+    const service = new URLSearchParams(location.search).get('service');
+    const need = $<HTMLSelectElement>('#f-need');
+    if (service && [...need.options].some((o) => o.value === service)) need.value = service;
+
+    // Lead source
+    const attr = getAttribution();
+    for (const [k, v] of Object.entries(attr)) {
+      const input = form.querySelector<HTMLInputElement>(`input[type=hidden][name="${k}"]`);
+      if (input && v) input.value = v;
+    }
+
+    const setError = (el: HTMLInputElement | HTMLSelectElement, message: string | null) => {
+      const box = document.getElementById(`${el.id}-err`);
+      el.setAttribute('aria-invalid', message ? 'true' : 'false');
+      if (box) box.textContent = message ?? '';
+    };
+
+    const validateField = (el: HTMLInputElement | HTMLSelectElement): boolean => {
+      const box = document.getElementById(`${el.id}-err`);
+      const value = el.value.trim();
+      let ok = true;
+      if (el.required && !value) ok = false;
+      else if (value && el instanceof HTMLInputElement && !el.checkValidity()) ok = false;
+      setError(el, ok ? null : (box?.dataset.msg ?? 'Please check this field.'));
+      return ok;
+    };
+
+    const validateContact = (): boolean => {
+      const ok = Boolean(email.value.trim() || phone.value.trim());
+      hint.classList.toggle('is-error', !ok);
+      if (!ok) {
+        email.setAttribute('aria-invalid', 'true');
+        phone.setAttribute('aria-invalid', 'true');
+      }
+      return ok;
+    };
+
+    const fields = [...form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('#f-name, #f-company, #f-email, #f-phone, #f-need')];
+    fields.forEach((el) =>
+      el.addEventListener('blur', () => {
+        if (el.getAttribute('aria-invalid') === 'true' || el.value) validateField(el);
+      }),
+    );
+
+    form.addEventListener('submit', (e) => {
+      const results = fields.map(validateField);
+      const contactOk = validateContact();
+      if (results.includes(false) || !contactOk) {
+        e.preventDefault();
+        summary.hidden = false;
+        const first = fields.find((el) => el.getAttribute('aria-invalid') === 'true');
+        first?.focus();
+        return;
+      }
+      summary.hidden = true;
+      // The thank-you page sends the analytics event only after a real submission.
+      try {
+        sessionStorage.setItem('inquiry_submitted', JSON.stringify({ need: need.value }));
+      } catch {}
+      form.querySelector<HTMLButtonElement>('button[type=submit]')!.disabled = true;
+    });
+  }
+</script>

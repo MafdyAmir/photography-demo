@@ -1,0 +1,144 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { whatsappUrl } from '../lib/whatsapp';
+import { t } from '../i18n/en';
+
+interface Props {
+  settings: CollectionEntry<'settings'>['data'];
+  services: CollectionEntry<'services'>[];
+}
+
+const { settings, services } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container grid">
+    <div class="brand">
+      <p class="logo">{settings.siteName}</p>
+      {settings.tagline && <p class="muted">{settings.tagline} · {settings.location.areaServed ?? settings.location.city}</p>}
+      <a class="btn btn--ghost cta" href="/contact" data-event="start_project_click" data-event-location="footer">
+        {t.nav.startProject}
+      </a>
+    </div>
+
+    <nav aria-label="Footer">
+      <h2 class="eyebrow">{t.footer.explore}</h2>
+      <ul role="list">
+        <li><a href="/work">{t.nav.work}</a></li>
+        {services.map((s) => <li><a href={`/services/${s.id}`}>{s.data.title}</a></li>)}
+        <li><a href="/about">{t.nav.about}</a></li>
+        <li><a href="/contact">{t.nav.contact}</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="eyebrow">{t.footer.contact}</h2>
+      <ul role="list">
+        <li>
+          <a
+            href={whatsappUrl(settings.whatsappNumber, settings.whatsappDefaultMessage)}
+            target="_blank"
+            rel="noopener"
+            data-event="whatsapp_click"
+            data-event-location="footer">WhatsApp</a
+          >
+        </li>
+        <li>
+          <a href={`mailto:${settings.email}`} data-event="email_click" data-event-location="footer">{settings.email}</a>
+        </li>
+        {settings.instagram && <li><a href={settings.instagram} target="_blank" rel="noopener">Instagram</a></li>}
+        {settings.linkedin && <li><a href={settings.linkedin} target="_blank" rel="noopener">LinkedIn</a></li>}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container bottom">
+    <p>© {year} {settings.siteName}. {t.footer.rights}</p>
+    <ul role="list" class="bottom-links">
+      <li><a href="/privacy">{t.footer.privacy}</a></li>
+      {
+        settings.weddingSiteUrl && (
+          <li>
+            <a href={settings.weddingSiteUrl} target="_blank" rel="noopener">
+              {t.footer.weddings}
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink);
+    color: #e9e5de;
+    padding-block: clamp(3rem, 2rem + 4vw, 5rem) 6rem;
+  }
+  @media (min-width: 56em) {
+    .site-footer {
+      padding-block-end: 2rem;
+    }
+  }
+  .site-footer a {
+    text-decoration: none;
+  }
+  .site-footer a:hover {
+    text-decoration: underline;
+  }
+  .site-footer :focus-visible {
+    outline-color: #9cc0ff;
+  }
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 48em) {
+    .grid {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    color: #fff;
+  }
+  .muted {
+    color: #b9b3a9;
+  }
+  .cta {
+    margin-block-start: 1.5rem;
+    color: #fff;
+    border-color: #fff;
+  }
+  .cta:hover {
+    background: #fff;
+    color: var(--ink);
+  }
+  .eyebrow {
+    color: #b9b3a9;
+    margin-block-end: 0.75rem;
+  }
+  li + li {
+    margin-block-start: 0.4rem;
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-start: 3rem;
+    padding-block-start: 1.5rem;
+    border-block-start: 1px solid #3a3733;
+    font-size: var(--step--1);
+    color: #b9b3a9;
+  }
+  .bottom-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .bottom-links li + li {
+    margin: 0;
+  }
+</style>

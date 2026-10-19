@@ -1,0 +1,24 @@
+---
+/**
+ * /work/[category] and /work/[slug] share one URL segment, so a single route builds both.
+ * Project slugs can't be category names (checked in lib/content.ts).
+ */
+import type { GetStaticPaths } from 'astro';
+import WorkPage from '../../components/WorkPage.astro';
+import ProjectDetail from '../../components/ProjectDetail.astro';
+import { getActiveCategories, getPublishedProjects, type Category, type Project } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const categories = await getActiveCategories();
+  const projects = await getPublishedProjects();
+  return [
+    ...categories.map((category) => ({ params: { slug: category }, props: { category } })),
+    ...projects.map((project) => ({ params: { slug: project.id }, props: { project } })),
+  ];
+}) satisfies GetStaticPaths;
+
+type Props = { category: Category; project?: never } | { project: Project; category?: never };
+const { category, project } = Astro.props as Props;
+---
+
+{category ? <WorkPage active={category} /> : <ProjectDetail project={project!} />}

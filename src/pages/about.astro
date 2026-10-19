@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Photo from '../components/Photo.astro';
+import CtaSection from '../components/CtaSection.astro';
+import { getSettings } from '../lib/content';
+import { t } from '../i18n/en';
+
+const settings = await getSettings();
+const paragraphs = settings.aboutText.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+---
+
+<BaseLayout
+  title={`${t.about.title} — Commercial Photographer in ${settings.location.city}`}
+  description={settings.aboutShort.slice(0, 160)}
+  image={settings.photographerPhoto.src}
+>
+  <section class="section">
+    <div class="container about">
+      <div class="about__media">
+        <Photo image={settings.photographerPhoto} sizes="(min-width: 48em) 40vw, 100vw" priority />
+      </div>
+      <div class="stack" style="--stack: 1.5rem">
+        <p class="eyebrow">{t.about.title}</p>
+        <h1>{settings.siteName}</h1>
+        <div class="prose lead">
+          {paragraphs.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    settings.processSteps.length > 0 && (
+      <section class="section section--surface" aria-labelledby="process">
+        <div class="container">
+          <h2 id="process" class="section-head">
+            {t.about.process}
+          </h2>
+          <ol role="list" class="steps">
+            {settings.processSteps.map((s) => (
+              <li>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  <CtaSection title={settings.finalCtaTitle} text={settings.finalCtaText} location="about" />
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  @media (min-width: 48em) {
+    .about {
+      grid-template-columns: 2fr 3fr;
+      gap: 4rem;
+    }
+  }
+  .about__media {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .about__media :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .prose {
+    color: var(--ink);
+  }
+</style>

@@ -1,0 +1,69 @@
+# PLACEHOLDER VALUES — replace the name, number, email and links before launch.
+siteName: Studio Name
+tagline: Commercial Photography
+location:
+  city: Cairo
+  country: EG
+  areaServed: Cairo, Egypt
+
+heroTitle: Commercial Photography for Brands & Businesses
+heroSubtitle: Product, brand and corporate photography that helps your business look as good online as it is in real life.
+heroImage:
+  src: ../../assets/uploads/home-hero-product-still-life.jpg
+  alt: "Perfume bottle and cosmetic jars lit by warm golden light on a yellow background"
+whyWorkWithMe:
+  - title: A clear plan before the shoot
+    text: Every project starts with a written brief and shot list, so you know exactly what you will get.
+  - title: Images made for where they will be used
+    text: Formats and crops are planned for your store, ads and social media from the start.
+  - title: Consistent look across every image
+    text: Lighting and editing stay the same across the series, so your products and team look like one brand.
+  - title: Direct communication
+    text: You work directly with the photographer from the first message to final delivery.
+finalCtaTitle: Have a project in mind?
+finalCtaText: Tell me about your products or brand, and I'll get back to you with ideas and next steps.
+
+aboutShort: >-
+  I'm a photographer based in Cairo, now focusing on product, brand and corporate photography.
+  I bring years of experience working with light, people and tight timelines to commercial projects.
+aboutText: |-
+  I'm a photographer based in Cairo. I started out photographing events and people, which taught me how to work with changing light, direct people naturally and deliver on tight timelines.
+
+  I'm now focusing on commercial work: product photography for online brands, campaign images for launches, and portraits and workplace photos for companies. The projects in my portfolio marked "Concept" are self-initiated shoots that show how I approach this kind of work.
+
+  I keep things simple and clear: a written brief, a shot list we agree on, and images delivered ready for where you'll use them.
+processSteps:
+  - title: Brief
+    text: You tell me about your brand, products and where the images will be used.
+  - title: Plan
+    text: I send a shot list, references and a clear quote.
+  - title: Shoot
+    text: In the studio or on location, with your feedback during the shoot if you want it.
+  - title: Deliver
+    text: Edited, web-ready images delivered online in the formats you need.
+photographerPhoto:
+  src: ../../assets/uploads/photographer-portrait.jpg
+  alt: "Portrait of the photographer (placeholder)"
+
+whatsappNumber: "201000000000"
+whatsappDefaultMessage: Hi, I'd like to discuss a photography project.
+email: hello@example.com
+instagram: https://www.instagram.com/example
+linkedin: https://www.linkedin.com/in/example
+
+# Leave empty to hide the budget field on the inquiry form.
+budgetRanges: []
+leadSources:
+  - Instagram
+  - LinkedIn
+  - Google
+  - WhatsApp
+  - Referral
+  - Other
+
+clientLogos: []
+
+defaultSeo:
+  title: Studio Name — Commercial Photographer in Cairo
+  description: Product, brand and corporate photography in Cairo, Egypt. Clean, consistent images for online stores, campaigns and companies.
+  ogImage: ../../assets/uploads/og-default.jpg

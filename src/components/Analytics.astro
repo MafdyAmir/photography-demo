@@ -1,0 +1,81 @@
+---
+/**
+ * GA4 + conversion events (PRD §8):
+ *   whatsapp_click, email_click, start_project_click — any link with data-event="…"
+ *   inquiry_submit — sent on /thank-you, only after a real form submission
+ * GA4 loads only when PUBLIC_GA4_ID is set (Netlify → Site configuration → Environment variables),
+ * and only after the page is idle so it doesn't slow down the first paint.
+ */
+const GA_ID = import.meta.env.PUBLIC_GA4_ID as string | undefined;
+---
+
+{
+  GA_ID && (
+    <script is:inline define:vars={{ GA_ID }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () {
+        dataLayer.push(arguments);
+      };
+      gtag('js', new Date());
+      gtag('config', GA_ID);
+      const load = () => {
+        const s = document.createElement('script');
+        s.async = true;
+        s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+        document.head.appendChild(s);
+      };
+      if (document.readyState === 'complete') setTimeout(load, 1500);
+      else addEventListener('load', () => ('requestIdleCallback' in window ? requestIdleCallback(load, { timeout: 3000 }) : setTimeout(load, 1500)));
+    </script>
+  )
+}
+
+<script>
+  import { track } from '../lib/analytics';
+  import { captureAttribution, getAttribution } from '../lib/attribution';
+
+  captureAttribution();
+
+  const PENDING = 'pending_events';
+
+  // Events from links that leave this page in the same tab (e.g. Start a Project -> /contact)
+  // are queued and sent from the next page, so they aren't lost if GA hasn't loaded yet.
+  try {
+    const pending: [string, Record<string, string>][] = JSON.parse(sessionStorage.getItem(PENDING) ?? '[]');
+    sessionStorage.removeItem(PENDING);
+    pending.forEach(([name, params]) => track(name, params));
+  } catch {}
+
+  document.addEventListener('click', (e) => {
+    const el = (e.target as Element).closest<HTMLElement>('[data-event]');
+    if (!el) return;
+    const link = el as HTMLAnchorElement;
+    const params = {
+      location: el.dataset.eventLocation ?? '',
+      page_path: location.pathname,
+      link_url: link.href,
+    };
+    const leavesInSameTab = link.href && link.origin === location.origin && link.target !== '_blank';
+    if (leavesInSameTab) {
+      try {
+        const queue = JSON.parse(sessionStorage.getItem(PENDING) ?? '[]');
+        queue.push([el.dataset.event, params]);
+        sessionStorage.setItem(PENDING, JSON.stringify(queue));
+        return;
+      } catch {}
+    }
+    track(el.dataset.event!, params);
+  });
+
+  // inquiry_submit: the form sets this flag right before Netlify redirects here.
+  if (location.pathname.startsWith('/thank-you')) {
+    try {
+      const raw = sessionStorage.getItem('inquiry_submitted');
+      if (raw) {
+        sessionStorage.removeItem('inquiry_submitted');
+        const { need } = JSON.parse(raw);
+        track('inquiry_submit', { service: need, lead_source: getAttribution().utm_source });
+      }
+    } catch {}
+  }
+</script>

@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSettings } from '../lib/content';
+
+const settings = await getSettings();
+---
+
+<BaseLayout
+  title="Privacy"
+  description={`How ${settings.siteName} uses the information you send through the project inquiry form.`}
+>
+  <section class="section">
+    <div class="container narrow stack prose" style="--stack: 1.25rem">
+      <h1>Privacy</h1>
+      <p class="lead">This page explains what happens to the information you share on this website.</p>
+
+      <h2>Project inquiry form</h2>
+      <p>
+        When you send the inquiry form, the details you enter (name, company, email, phone, and project information)
+        are delivered to {settings.siteName} by email through our form provider, Netlify. They are used only to reply
+        to your inquiry and discuss your project. They are not sold or shared with anyone else, and they are not used
+        for marketing lists.
+      </p>
+      <p>
+        This website does not store your details in its own database. Form submissions are kept by Netlify as part of
+        the service and can be deleted on request.
+      </p>
+
+      <h2>WhatsApp and email</h2>
+      <p>
+        If you contact us on WhatsApp or by email, your message is handled by those services under their own privacy
+        policies.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        We use Google Analytics to understand how visitors use the site — for example which pages are viewed and
+        whether the inquiry form is sent. This uses cookies and does not tell us who you are.
+      </p>
+
+      <h2>Your requests</h2>
+      <p>
+        To ask what information we hold about you, or to have it deleted, email
+        <a href={`mailto:${settings.email}`} data-event="email_click" data-event-location="privacy">{settings.email}</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  h2 {
+    font-size: var(--step-2);
+    padding-block-start: 1rem;
+  }
+</style>

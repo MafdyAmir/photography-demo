@@ -1,0 +1,128 @@
+---
+/**
+ * Portfolio grid with category filter (PRD FR-4).
+ * Every category has its own static page (/work/product …) so links can be shared and indexed;
+ * with JS, the filter switches in place and updates the URL without a reload.
+ */
+import ProjectCard from './ProjectCard.astro';
+import { CATEGORY_LABELS, type Category, type Project } from '../lib/content';
+import { t } from '../i18n/en';
+
+interface Props {
+  projects: Project[];
+  categories: Category[];
+  active: Category | 'all';
+  /** Titles per filter, so document.title stays right when filtering in place. */
+  titles: Record<string, string>;
+}
+
+const { projects, categories, active, titles } = Astro.props;
+const filters: { key: string; label: string; href: string }[] = [
+  { key: 'all', label: t.common.allWork, href: '/work' },
+  ...categories.map((c) => ({ key: c, label: CATEGORY_LABELS[c], href: `/work/${c}` })),
+];
+---
+
+<div class="work" data-work data-titles={JSON.stringify(titles)}>
+  {
+    filters.length > 2 && (
+      <nav class="filters" aria-label={t.work.filterLabel}>
+        <ul role="list">
+          {filters.map((f) => (
+            <li>
+              <a href={f.href} data-filter={f.key} aria-current={f.key === active ? 'page' : undefined}>
+                {f.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )
+  }
+
+  <ul role="list" class="grid">
+    {
+      projects.map((p) => (
+        <li data-category={p.data.category} hidden={active !== 'all' && p.data.category !== active}>
+          <ProjectCard project={p} headingLevel="h2" />
+        </li>
+      ))
+    }
+  </ul>
+  {projects.length === 0 && <p class="muted">{t.work.empty}</p>}
+</div>
+
+<style>
+  .filters ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-block-end: 2.5rem;
+  }
+  .filters a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    padding: 0.4em 1.1em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+  .filters a:hover {
+    border-color: var(--ink);
+  }
+  .filters a[aria-current='page'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+  .grid {
+    display: grid;
+    gap: clamp(2.5rem, 2rem + 2vw, 4rem) clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  }
+  @media (min-width: 40em) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 64em) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-work]');
+  if (root) {
+    const titles: Record<string, string> = JSON.parse(root.dataset.titles ?? '{}');
+    const links = root.querySelectorAll<HTMLAnchorElement>('[data-filter]');
+    const items = root.querySelectorAll<HTMLElement>('[data-category]');
+
+    const apply = (key: string) => {
+      items.forEach((li) => (li.hidden = key !== 'all' && li.dataset.category !== key));
+      links.forEach((a) => {
+        if (a.dataset.filter === key) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+      if (titles[key]) document.title = titles[key];
+    };
+
+    links.forEach((a) =>
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        const key = a.dataset.filter!;
+        apply(key);
+        history.pushState({ filter: key }, '', a.href);
+      }),
+    );
+
+    window.addEventListener('popstate', () => {
+      const seg = location.pathname.replace(/\/$/, '').split('/')[2];
+      apply(seg && titles[seg] ? seg : 'all');
+    });
+  }
+</script>

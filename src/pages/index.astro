@@ -1,0 +1,359 @@
+---
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Photo from '../components/Photo.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import CtaSection from '../components/CtaSection.astro';
+import { getFeaturedProjects, getPublishedTestimonials, getServices, getSettings } from '../lib/content';
+import { t } from '../i18n/en';
+
+const settings = await getSettings();
+const featured = await getFeaturedProjects(6);
+const services = await getServices();
+const testimonials = await getPublishedTestimonials();
+
+// Schema.org ProfessionalService (a LocalBusiness subtype) for Google (PRD §8).
+const hero = await getImage({ src: settings.heroImage.src, width: 1200, format: 'jpeg' });
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: settings.siteName,
+  description: settings.defaultSeo.description,
+  url: Astro.site?.href,
+  image: new URL(hero.src, Astro.site).href,
+  email: settings.email,
+  telephone: `+${settings.whatsappNumber}`,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: settings.location.city,
+    addressCountry: settings.location.country,
+  },
+  areaServed: settings.location.areaServed ?? settings.location.city,
+  sameAs: [settings.instagram, settings.linkedin].filter(Boolean),
+  knowsAbout: services.map((s) => s.data.title),
+};
+---
+
+<BaseLayout>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <!-- 1. Hero -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__text stack" style="--stack: 1.5rem">
+        <p class="eyebrow">{settings.tagline} · {settings.location.city}</p>
+        <h1>{settings.heroTitle}</h1>
+        <p class="lead">{settings.heroSubtitle}</p>
+        <div class="btn-row">
+          <a class="btn btn--ghost" href="/work">{t.common.viewWork}</a>
+          <a class="btn" href="/contact" data-event="start_project_click" data-event-location="home_hero">
+            {t.common.startProject}
+          </a>
+        </div>
+      </div>
+      <div class="hero__media">
+        <Photo image={settings.heroImage} sizes="(min-width: 56em) 58vw, 100vw" priority />
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Selected Work -->
+  {
+    featured.length > 0 && (
+      <section class="section" aria-labelledby="selected-work">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="selected-work">{t.home.selectedWork}</h2>
+            <a class="link-arrow" href="/work">
+              {t.common.seeAll}
+            </a>
+          </div>
+          <ul role="list" class="work-grid">
+            {featured.map((p) => (
+              <li>
+                <ProjectCard project={p} sizes="(min-width: 48em) 50vw, 100vw" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 3. Services -->
+  <section class="section section--surface" aria-labelledby="services">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="services">{t.home.services}</h2>
+        <p class="muted">{t.home.servicesIntro}</p>
+      </div>
+      <ul role="list" class="services">
+        {
+          services.map((s) => (
+            <li>
+              <a class="service" href={`/services/${s.id}`}>
+                <div class="service__media">
+                  <Photo image={s.data.heroImage} sizes="(min-width: 48em) 33vw, 100vw" />
+                </div>
+                <h3>{s.data.title}</h3>
+                <p class="muted">{s.data.cardSummary}</p>
+                <span class="link-arrow" aria-hidden="true">
+                  {t.home.serviceLink}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. Why Work With Me -->
+  {
+    settings.whyWorkWithMe.length > 0 && (
+      <section class="section" aria-labelledby="why">
+        <div class="container why">
+          <h2 id="why">{t.home.why}</h2>
+          <ul role="list" class="why__list">
+            {settings.whyWorkWithMe.map((point) => (
+              <li>
+                <h3>{point.title}</h3>
+                <p class="muted">{point.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Testimonials (only real, published ones) -->
+  {
+    testimonials.length > 0 && (
+      <section class="section section--surface" aria-labelledby="testimonials">
+        <div class="container">
+          <h2 id="testimonials" class="section-head">
+            {t.home.testimonials}
+          </h2>
+          <ul role="list" class="quotes">
+            {testimonials.map(({ data }) => (
+              <li>
+                <figure>
+                  <blockquote>
+                    <p>“{data.quote}”</p>
+                  </blockquote>
+                  <figcaption class="muted">
+                    <strong>{data.name}</strong>
+                    {[data.role, data.company].filter(Boolean).join(', ')}
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Client logos (only with permission) -->
+  {
+    settings.clientLogos.length > 0 && (
+      <section class="section--tight" aria-labelledby="clients">
+        <div class="container">
+          <h2 id="clients" class="eyebrow">
+            {t.home.clients}
+          </h2>
+          <ul role="list" class="logos">
+            {settings.clientLogos.map((c) => (
+              <li>
+                <Image src={c.logo} alt={c.name} height={48} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 5. About -->
+  <section class="section" aria-labelledby="about">
+    <div class="container about">
+      <div class="about__media">
+        <Photo image={settings.photographerPhoto} sizes="(min-width: 48em) 40vw, 100vw" />
+      </div>
+      <div class="stack" style="--stack: 1.25rem">
+        <p class="eyebrow" id="about">{t.home.about}</p>
+        <p class="about__text">{settings.aboutShort}</p>
+        <a class="link-arrow" href="/about">{t.home.aboutMore}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Final CTA -->
+  <CtaSection title={settings.finalCtaTitle} text={settings.finalCtaText} location="home_final" />
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(2rem, 1rem + 4vw, 5rem) clamp(1rem, 4vw, 3rem);
+  }
+  .hero__inner {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 56em) {
+    .hero__inner {
+      grid-template-columns: 5fr 7fr;
+      gap: 4rem;
+    }
+  }
+  .hero__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .hero__media :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .work-grid {
+    display: grid;
+    gap: clamp(2.5rem, 2rem + 2vw, 4rem) clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  }
+  @media (min-width: 48em) {
+    .work-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .services {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 48em) {
+    .services {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+  .service {
+    display: grid;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+  .service__media {
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    margin-block-end: 0.5rem;
+    background: var(--surface-2);
+  }
+  .service__media :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .service .link-arrow {
+    justify-self: start;
+  }
+  .service:hover h3 {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .why {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 56em) {
+    .why {
+      grid-template-columns: 1fr 2fr;
+      gap: 4rem;
+    }
+  }
+  .why__list {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 40em) {
+    .why__list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .why__list li {
+    border-block-start: 1px solid var(--line);
+    padding-block-start: 1.25rem;
+  }
+  .why__list h3 {
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    font-weight: 600;
+    margin-block-end: 0.4rem;
+  }
+
+  .quotes {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 48em) {
+    .quotes {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .quotes figure {
+    margin: 0;
+  }
+  .quotes blockquote {
+    margin: 0 0 1rem;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.25;
+  }
+  .quotes strong {
+    display: block;
+    color: var(--ink);
+  }
+
+  .logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem 3rem;
+    margin-block-start: 1.5rem;
+  }
+  .logos :global(img) {
+    block-size: 2.5rem;
+    inline-size: auto;
+    filter: grayscale(1);
+    opacity: 0.75;
+  }
+
+  .about {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 48em) {
+    .about {
+      grid-template-columns: 2fr 3fr;
+      gap: 4rem;
+    }
+  }
+  .about__media {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    max-inline-size: 28rem;
+    background: var(--surface-2);
+  }
+  .about__media :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .about__text {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.3;
+  }
+</style>

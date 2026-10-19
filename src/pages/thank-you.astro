@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WhatsAppIcon from '../components/WhatsAppIcon.astro';
+import { getSettings } from '../lib/content';
+import { whatsappUrl } from '../lib/whatsapp';
+import { t } from '../i18n/en';
+
+const settings = await getSettings();
+---
+
+<BaseLayout title="Thank You" description="Your project inquiry was sent." noindex>
+  <section class="section">
+    <div class="container narrow stack" style="--stack: 1.5rem">
+      <p class="eyebrow">Inquiry sent</p>
+      <h1>Thank you — I’ve received your project details.</h1>
+      <p class="lead">
+        I’ll review your inquiry and get back to you by email or WhatsApp with ideas and next steps.
+      </p>
+      <p>Need to add something or talk sooner? Send me a message on WhatsApp.</p>
+      <div class="btn-row">
+        <a
+          class="btn btn--whatsapp"
+          href={whatsappUrl(settings.whatsappNumber, 'Hi, I just sent a project inquiry through your website.')}
+          target="_blank"
+          rel="noopener"
+          data-event="whatsapp_click"
+          data-event-location="thank_you"
+        >
+          <WhatsAppIcon />
+          {t.common.chatOnWhatsApp}
+        </a>
+        <a class="btn btn--ghost" href="/work">{t.common.viewWork}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

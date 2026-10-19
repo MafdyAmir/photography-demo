@@ -1,0 +1,30 @@
+title: Brand Photography
+category: brand
+order: 2
+cardSummary: Campaign images with a clear idea behind them, made for launches, ads and social media.
+intro: >-
+  Photos built around one clear idea for your brand or product launch — from hero images
+  to social formats — so your campaign looks consistent everywhere it appears.
+whoItsFor: >-
+  Brands preparing a launch or campaign, marketing teams and agencies who need a photographer to
+  execute a creative brief and work alongside designers.
+deliverables:
+  - Campaign hero images
+  - Supporting detail and lifestyle images
+  - Vertical and horizontal formats for ads and social media
+  - Images with space planned for text and design
+process:
+  - title: Brief
+    text: You share the campaign goal, audience, channels and any brand guidelines.
+  - title: Concept
+    text: I propose a visual direction, mood references and a shot list for approval.
+  - title: Shoot
+    text: The campaign is shot with your team's input, covering every format agreed.
+  - title: Deliver
+    text: You receive edited images ready for design, ads and social media.
+heroImage:
+  src: ../../assets/uploads/service-brand-photography-hero.jpg
+  alt: "Two small perfume bottles with gold caps on a white display box"
+seo:
+  title: Brand & Campaign Photography for Product Launches
+  description: Brand campaign photography for launches, ads and social media — built around a clear creative idea and your brand guidelines.

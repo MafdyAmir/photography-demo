@@ -1,0 +1,47 @@
+---
+/** Shared by /work and /work/[category]. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WorkListing from './WorkListing.astro';
+import CtaSection from './CtaSection.astro';
+import { CATEGORY_LABELS, getActiveCategories, getPublishedProjects, getSettings, type Category } from '../lib/content';
+import { t } from '../i18n/en';
+
+interface Props {
+  active: Category | 'all';
+}
+
+const { active } = Astro.props;
+const settings = await getSettings();
+const projects = await getPublishedProjects();
+const categories = await getActiveCategories();
+
+const pageTitle = (key: Category | 'all') =>
+  key === 'all' ? `${t.work.title}` : `${CATEGORY_LABELS[key]} Photography Work`;
+const pageDescription =
+  active === 'all'
+    ? `Product, brand and corporate photography projects by ${settings.siteName}, ${settings.location.city}.`
+    : `${CATEGORY_LABELS[active]} photography projects by ${settings.siteName}, ${settings.location.city}.`;
+
+const titles = Object.fromEntries(
+  (['all', ...categories] as const).map((k) => [k, `${pageTitle(k)} | ${settings.siteName}`]),
+);
+---
+
+<BaseLayout title={pageTitle(active)} description={pageDescription}>
+  <section class="section">
+    <div class="container">
+      <header class="intro stack">
+        <h1>{t.work.title}</h1>
+        <p class="lead">{t.work.intro}</p>
+      </header>
+      <WorkListing projects={projects} categories={categories} active={active} titles={titles} />
+    </div>
+  </section>
+  <CtaSection title={settings.finalCtaTitle} text={settings.finalCtaText} location="work" />
+</BaseLayout>
+
+<style>
+  .intro {
+    margin-block-end: 2.5rem;
+  }
+</style>

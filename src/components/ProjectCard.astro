@@ -1,0 +1,70 @@
+---
+import Photo from './Photo.astro';
+import { CATEGORY_LABELS, type Project } from '../lib/content';
+import { t } from '../i18n/en';
+
+interface Props {
+  project: Project;
+  sizes?: string;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { project, sizes = '(min-width: 64em) 33vw, (min-width: 40em) 50vw, 100vw', headingLevel = 'h3' } = Astro.props;
+const { title, category, coverImage, isConcept, client } = project.data;
+const Heading = headingLevel;
+---
+
+<article class="card">
+  <a class="card__link" href={`/work/${project.id}`}>
+    <div class="card__media">
+      <Photo image={coverImage} sizes={sizes} />
+    </div>
+    <div class="card__meta">
+      <p class="eyebrow">
+        {CATEGORY_LABELS[category]}{client && !isConcept && ` · ${client}`}
+      </p>
+      {isConcept && <span class="badge-concept">{t.common.conceptBadge}</span>}
+    </div>
+    <Heading class="card__title">{title}</Heading>
+  </a>
+</article>
+
+<style>
+  .card__link {
+    display: block;
+    text-decoration: none;
+  }
+  .card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .card__media :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card__link:hover :global(img) {
+      transform: scale(1.03);
+    }
+  }
+  .card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-block-start: 1rem;
+  }
+  .card__title {
+    margin-block-start: 0.4rem;
+    font-size: var(--step-2);
+  }
+  .card__link:hover .card__title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+</style>

@@ -1,0 +1,33 @@
+title: Studio Team & Workspace
+category: corporate
+isConcept: true
+coverImage:
+  src: ../../assets/uploads/studio-team-workspace-cover.jpg
+  alt: "Smiling team member in a grey turtleneck in a bright glass-walled office"
+gallery:
+  - src: ../../assets/uploads/studio-team-workspace-01.jpg
+    alt: "Employee working at a desk in a bright open-plan office"
+  - src: ../../assets/uploads/studio-team-workspace-02.jpg
+    alt: "Portrait of a man with glasses in a black shirt in an open-plan office"
+  - src: ../../assets/uploads/studio-team-workspace-03.jpg
+    alt: "Smiling man with glasses in a cream sweater in an office"
+  - src: ../../assets/uploads/studio-team-workspace-04.jpg
+    alt: "Man in a dark suit and striped tie standing in a glass-walled office"
+  - src: ../../assets/uploads/studio-team-workspace-05.jpg
+    alt: "Woman in a yellow blazer holding a tablet"
+  - src: ../../assets/uploads/studio-team-workspace-06.jpg
+    alt: "Team members in conversation during a meeting"
+goal: Give a small team consistent portraits and real workplace images for their website and LinkedIn.
+idea: Natural, relaxed portraits in their own space instead of a studio backdrop, with a matching look for every person.
+usage: About page, team profiles, LinkedIn and recruitment posts.
+role: Planning the shot list, on-location lighting, photography and retouching.
+services:
+  - Corporate Portraits
+  - Workplace Photography
+featured: true
+published: true
+order: 4
+date: 2026-08-05
+seo:
+  title: Corporate Team & Workplace Photography (Concept)
+  description: Concept corporate shoot — consistent team portraits and workspace images for a website and LinkedIn.

@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { t } from '../i18n/en';
+---
+
+<BaseLayout title="Page not found" description="This page doesn’t exist." noindex>
+  <section class="section">
+    <div class="container narrow stack" style="--stack: 1.5rem">
+      <p class="eyebrow">404</p>
+      <h1>This page doesn’t exist.</h1>
+      <p class="lead">The link may be old or mistyped.</p>
+      <div class="btn-row">
+        <a class="btn" href="/work">{t.common.viewWork}</a>
+        <a class="btn btn--ghost" href="/">{t.nav.home}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

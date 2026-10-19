@@ -1,0 +1,231 @@
+---
+/**
+ * Project gallery + lightbox (PRD FR-5): full image, swipe on touch, arrow keys on desktop, Esc to close.
+ * Uses the native <dialog> element for focus trapping and Esc handling.
+ */
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Photo from './Photo.astro';
+import { t } from '../i18n/en';
+
+interface Props {
+  images: { src: ImageMetadata; alt: string }[];
+}
+
+const { images } = Astro.props;
+const L = t.project.lightbox;
+
+// Large versions for the lightbox, generated at build time.
+const full = await Promise.all(
+  images.map(async (img) => {
+    const widths = [800, 1400, 2000].filter((w) => w < img.src.width).concat(Math.min(img.src.width, 2400));
+    const res = await getImage({ src: img.src, widths, format: 'webp', quality: 78 });
+    return { src: res.src, srcset: res.srcSet.attribute };
+  }),
+);
+---
+
+<div class="gallery" data-gallery>
+  <ul role="list" class="gallery__grid">
+    {
+      images.map((img, i) => (
+        <li style={`--r: ${(img.src.width / img.src.height).toFixed(3)}`}>
+          <button
+            type="button"
+            class="gallery__item"
+            data-index={i}
+            data-full={full[i].src}
+            data-srcset={full[i].srcset}
+            data-alt={img.alt}
+            aria-label={`${t.project.openImage} ${i + 1}: ${img.alt}`}
+          >
+            <Photo image={img} sizes="(min-width: 48em) 50vw, 100vw" />
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  <dialog class="lightbox" aria-label={L.label}>
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" alt="" sizes="100vw" draggable="false" />
+      <figcaption class="lightbox__caption">
+        <span class="lightbox__count" aria-live="polite"></span>
+        <span class="lightbox__alt"></span>
+      </figcaption>
+    </figure>
+    <button type="button" class="lb-btn lb-close" data-close aria-label={L.close}>✕</button>
+    <button type="button" class="lb-btn lb-prev" data-prev aria-label={L.prev}>‹</button>
+    <button type="button" class="lb-btn lb-next" data-next aria-label={L.next}>›</button>
+  </dialog>
+</div>
+
+<style>
+  /* Justified rows: keeps the CMS order left-to-right, equal height per row.
+     Grow and basis both scale with each image's aspect ratio (--r). */
+  .gallery__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+  }
+  .gallery__grid li {
+    flex: var(--r) 1 calc(var(--r) * 100%);
+  }
+  @media (min-width: 48em) {
+    .gallery__grid li {
+      flex-basis: calc(var(--r) * 18rem);
+    }
+  }
+  .gallery__item {
+    display: block;
+    inline-size: 100%;
+    padding: 0;
+    border: 0;
+    background: var(--surface-2);
+    cursor: zoom-in;
+  }
+  .gallery__item :global(img) {
+    inline-size: 100%;
+  }
+
+  .lightbox {
+    inline-size: 100vw;
+    block-size: 100dvh;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #0f0e0d;
+    color: #eee;
+    touch-action: pan-y;
+  }
+  .lightbox::backdrop {
+    background: #0f0e0d;
+  }
+  .lightbox__figure {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    block-size: 100%;
+    margin: 0;
+    padding: 3.5rem 0.5rem 0.75rem;
+  }
+  .lightbox__img {
+    inline-size: 100%;
+    block-size: 100%;
+    max-block-size: calc(100dvh - 7rem);
+    object-fit: contain;
+    user-select: none;
+  }
+  .lightbox__caption {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0.75rem 1rem 0;
+    font-size: var(--step--1);
+    color: #bbb;
+    text-align: center;
+  }
+  .lb-btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    inline-size: 3rem;
+    block-size: 3rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .lb-btn:hover {
+    background: rgb(255 255 255 / 0.2);
+  }
+  .lb-btn:focus-visible {
+    outline-color: #9cc0ff;
+  }
+  .lb-close {
+    inset-block-start: 0.5rem;
+    inset-inline-end: 0.5rem;
+    font-size: 1.1rem;
+  }
+  .lb-prev,
+  .lb-next {
+    inset-block-start: 50%;
+    translate: 0 -50%;
+  }
+  .lb-prev {
+    inset-inline-start: 0.5rem;
+  }
+  .lb-next {
+    inset-inline-end: 0.5rem;
+  }
+  /* On touch screens swiping replaces the arrows. */
+  @media (hover: none) and (pointer: coarse) {
+    .lb-prev,
+    .lb-next {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const items = [...root.querySelectorAll<HTMLButtonElement>('.gallery__item')];
+    const dialog = root.querySelector<HTMLDialogElement>('dialog')!;
+    const img = dialog.querySelector<HTMLImageElement>('.lightbox__img')!;
+    const count = dialog.querySelector<HTMLElement>('.lightbox__count')!;
+    const caption = dialog.querySelector<HTMLElement>('.lightbox__alt')!;
+    const rtl = document.documentElement.dir === 'rtl';
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      const item = items[index];
+      img.srcset = item.dataset.srcset ?? '';
+      img.src = item.dataset.full ?? '';
+      img.alt = item.dataset.alt ?? '';
+      caption.textContent = item.dataset.alt ?? '';
+      count.textContent = `${index + 1} / ${items.length}`;
+    };
+
+    items.forEach((item, i) =>
+      item.addEventListener('click', () => {
+        show(i);
+        dialog.showModal();
+      }),
+    );
+
+    // Return focus to the thumbnail that opened the viewer.
+    dialog.addEventListener('close', () => items[index]?.focus());
+
+    dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-prev]')!.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('[data-next]')!.addEventListener('click', () => show(index + 1));
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(index + (rtl ? -1 : 1));
+      if (e.key === 'ArrowLeft') show(index + (rtl ? 1 : -1));
+    });
+
+    // Swipe left/right.
+    let startX: number | null = null;
+    let startY = 0;
+    dialog.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+    dialog.addEventListener('pointercancel', () => (startX = null));
+    dialog.addEventListener('pointerup', (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      startX = null;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+      const forward = rtl ? dx > 0 : dx < 0;
+      show(index + (forward ? 1 : -1));
+    });
+  });
+</script>

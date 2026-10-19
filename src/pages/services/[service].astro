@@ -1,0 +1,181 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Photo from '../../components/Photo.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaSection from '../../components/CtaSection.astro';
+import { CATEGORY_LABELS, getProjectsByCategory, getServices } from '../../lib/content';
+import { whatsappMessages } from '../../lib/whatsapp';
+import { t } from '../../i18n/en';
+
+export const getStaticPaths = (async () => {
+  const services = await getServices();
+  return services.map((service) => ({ params: { service: service.id }, props: { service } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  service: CollectionEntry<'services'>;
+}
+
+const { service } = Astro.props;
+const d = service.data;
+const examples = (await getProjectsByCategory(d.category)).slice(0, 6);
+const waMessage = whatsappMessages.service(d.title);
+---
+
+<BaseLayout
+  title={d.seo.title ?? d.title}
+  description={d.seo.description ?? d.intro.slice(0, 160)}
+  image={d.heroImage.src}
+  whatsappMessage={waMessage}
+>
+  <!-- 1. What is it? -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="stack" style="--stack: 1.5rem">
+        <p class="eyebrow">{t.nav.services}</p>
+        <h1>{d.title}</h1>
+        <p class="lead">{d.intro}</p>
+        <div class="btn-row">
+          <a
+            class="btn"
+            href={`/contact?service=${d.category}#inquiry`}
+            data-event="start_project_click"
+            data-event-location="service_hero"
+          >
+            {t.common.startProject}
+          </a>
+        </div>
+      </div>
+      <div class="hero__media">
+        <Photo image={d.heroImage} sizes="(min-width: 56em) 50vw, 100vw" priority />
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Who needs it? + deliverables -->
+  <section class="section section--surface">
+    <div class="container two-col">
+      <div class="stack">
+        <h2>{t.service.whoFor}</h2>
+        <p>{d.whoItsFor}</p>
+      </div>
+      <div class="stack">
+        <h2>{t.service.deliverables}</h2>
+        <ul class="deliverables">
+          {d.deliverables.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Examples (projects in this category, automatic) -->
+  <section class="section" aria-labelledby="examples">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="examples">{t.service.examples}</h2>
+        {
+          examples.length > 0 && (
+            <a class="link-arrow" href={`/work/${d.category}`}>
+              {t.common.seeAll} ({CATEGORY_LABELS[d.category]})
+            </a>
+          )
+        }
+      </div>
+      {
+        examples.length > 0 ? (
+          <ul role="list" class="examples">
+            {examples.map((p) => (
+              <li>
+                <ProjectCard project={p} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="muted">{t.service.examplesEmpty}</p>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- 4. How to order it -->
+  <section class="section section--surface" aria-labelledby="process">
+    <div class="container">
+      <h2 id="process" class="section-head">{t.service.process}</h2>
+      <ol role="list" class="steps">
+        {
+          d.process.map((s) => (
+            <li>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <CtaSection title={t.service.ctaTitle} whatsappMessage={waMessage} service={d.category} location={`service_${d.category}`} />
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(2rem, 1rem + 4vw, 5rem) var(--section);
+  }
+  .hero__inner {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 56em) {
+    .hero__inner {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+  .hero__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .hero__media :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .two-col {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 48em) {
+    .two-col {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+  .two-col h2 {
+    font-size: var(--step-2);
+  }
+  .deliverables {
+    margin: 0;
+    padding-inline-start: 1.2em;
+  }
+  .deliverables li + li {
+    margin-block-start: 0.5rem;
+  }
+  .examples {
+    display: grid;
+    gap: 2.5rem 2rem;
+  }
+  @media (min-width: 40em) {
+    .examples {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 64em) {
+    .examples {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

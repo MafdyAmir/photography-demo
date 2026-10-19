@@ -1,0 +1,57 @@
+---
+/** Every page ends with this: Start a Project + WhatsApp (PRD §5). */
+import WhatsAppIcon from './WhatsAppIcon.astro';
+import { getSettings } from '../lib/content';
+import { whatsappUrl } from '../lib/whatsapp';
+import { t } from '../i18n/en';
+
+interface Props {
+  title: string;
+  text?: string;
+  whatsappMessage?: string;
+  /** Pre-selects "What do you need?" on the form: product | brand | corporate. */
+  service?: string;
+  /** Analytics label for where the click happened. */
+  location: string;
+}
+
+const settings = await getSettings();
+const { title, text, whatsappMessage = settings.whatsappDefaultMessage, service, location } = Astro.props;
+const contactHref = service ? `/contact?service=${service}#inquiry` : '/contact';
+---
+
+<section class="cta section" aria-labelledby={`cta-${location}`}>
+  <div class="container narrow stack" style="--stack: 1.5rem">
+    <h2 id={`cta-${location}`}>{title}</h2>
+    {text && <p class="lead">{text}</p>}
+    <div class="btn-row">
+      <a class="btn" href={contactHref} data-event="start_project_click" data-event-location={location}>
+        {t.common.startProject}
+      </a>
+      <a
+        class="btn btn--whatsapp"
+        href={whatsappUrl(settings.whatsappNumber, whatsappMessage)}
+        target="_blank"
+        rel="noopener"
+        data-event="whatsapp_click"
+        data-event-location={location}
+      >
+        <WhatsAppIcon />
+        {t.common.chatOnWhatsApp}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    background: var(--surface-2);
+    text-align: center;
+  }
+  .cta .narrow {
+    margin-inline: auto;
+  }
+  .btn-row {
+    justify-content: center;
+  }
+</style>

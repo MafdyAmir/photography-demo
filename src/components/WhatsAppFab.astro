@@ -1,0 +1,47 @@
+---
+import { whatsappUrl } from '../lib/whatsapp';
+import { t } from '../i18n/en';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+
+interface Props {
+  number: string;
+  message: string;
+}
+
+const { number, message } = Astro.props;
+---
+
+<a
+  class="wa-fab"
+  href={whatsappUrl(number, message)}
+  target="_blank"
+  rel="noopener"
+  aria-label={t.common.whatsappFab}
+  data-event="whatsapp_click"
+  data-event-location="floating_button"
+>
+  <WhatsAppIcon size={28} />
+</a>
+
+<style>
+  /* Floating button is mobile-only (PRD §5); desktop has WhatsApp links in the page and footer. */
+  .wa-fab {
+    position: fixed;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline-end: 1rem;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    inline-size: 3.5rem;
+    block-size: 3.5rem;
+    border-radius: 50%;
+    background: var(--whatsapp);
+    color: #fff;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.2);
+  }
+  @media (min-width: 56em) {
+    .wa-fab {
+      display: none;
+    }
+  }
+</style>

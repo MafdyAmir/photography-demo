@@ -1,0 +1,30 @@
+title: Product Photography
+category: product
+order: 1
+cardSummary: Clean, consistent product images for your online store, marketplaces and social media.
+intro: >-
+  Clear, accurate and attractive photos of your products — shot with consistent light and angles
+  so your whole catalogue looks like one brand.
+whoItsFor: >-
+  E-commerce brands, small product businesses and online shops selling clothing, skincare, fragrance,
+  accessories or home products that need images for product pages, marketplaces and ads.
+deliverables:
+  - White or coloured background packshots for product pages
+  - Detail and texture close-ups
+  - Styled still life images
+  - Crops ready for web, marketplaces and social media
+process:
+  - title: Brief
+    text: You share your products, where the images will be used and any references you like.
+  - title: Plan
+    text: We agree on a shot list, backgrounds, styling and delivery formats.
+  - title: Shoot
+    text: Products are photographed with consistent lighting so every item matches.
+  - title: Deliver
+    text: You receive edited, web-ready images in the sizes you need.
+heroImage:
+  src: ../../assets/uploads/service-product-photography-hero.jpg
+  alt: "Amber glass dropper bottle on a wooden pedestal with palm leaf shadows"
+seo:
+  title: Product Photography for Brands & Online Stores
+  description: Product photography for e-commerce and product brands — consistent packshots, details and styled images for web and social.

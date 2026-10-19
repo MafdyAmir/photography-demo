@@ -1,0 +1,321 @@
+# Decap CMS configuration — the photographer's editing panel at /admin
+# Field rules here mirror src/content.config.ts. If you change one, change the other.
+
+# ─── Login ──────────────────────────────────────────────────────────────────────
+# DecapBridge: the photographer logs in with email + password (no GitHub account needed).
+# After creating the site on https://decapbridge.com, REPLACE this whole `backend` block
+# with the one the DecapBridge dashboard gives you (it contains your real site id).
+backend:
+  name: git-gateway
+  repo: YOUR-GITHUB-USER/YOUR-REPO
+  branch: main
+  identity_url: https://auth.decapbridge.com/sites/YOUR-DECAPBRIDGE-SITE-ID
+  gateway_url: https://gateway.decapbridge.com
+  commit_messages:
+    create: 'Create {{collection}} “{{slug}}” — {{author-name}}'
+    update: 'Update {{collection}} “{{slug}}” — {{author-name}}'
+    delete: 'Delete {{collection}} “{{slug}}” — {{author-name}}'
+    uploadMedia: 'Upload “{{path}}” — {{author-name}}'
+    deleteMedia: 'Delete “{{path}}” — {{author-name}}'
+
+# Local testing only: run `npm run cms` and `npm run dev`, then open http://localhost:4321/admin/
+local_backend: true
+
+site_url: https://example.netlify.app
+display_url: https://example.netlify.app
+locale: en
+
+# ─── Media ──────────────────────────────────────────────────────────────────────
+# Uploads go into the repo; the site build resizes and converts them to AVIF/WebP automatically.
+media_folder: src/assets/uploads
+public_folder: ../../assets/uploads
+# Export JPGs (max ~3000px, under ~5 MB) before uploading — never camera RAW/original files.
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+# ─── Reusable field definitions (YAML anchors) ─────────────────────────────────
+x-alt: &alt
+  label: Alt text (describe the photo)
+  name: alt
+  widget: string
+  hint: 'Required. Describe what is in the photo, e.g. "Amber perfume bottle on a beige stone plinth". Helps Google and blind visitors.'
+  pattern: ['^.{5,}$', 'Write at least a few words describing the photo.']
+
+x-photo: &photo
+  - { label: Photo, name: src, widget: image, choose_url: false }
+  - *alt
+
+x-seo: &seo
+  label: SEO
+  name: seo
+  widget: object
+  collapsed: true
+  required: false
+  hint: Leave empty to use the title and a sentence from the brief.
+  fields:
+    - { label: Google title, name: title, widget: string, required: false, hint: 'Max ~60 characters.', pattern: ['^.{0,70}$', 'Keep it under 70 characters.'] }
+    - { label: Google description, name: description, widget: text, required: false, hint: 'One or two sentences, max ~160 characters.', pattern: ['^[\s\S]{0,170}$', 'Keep it under 170 characters.'] }
+
+x-steps: &steps
+  - { label: Title, name: title, widget: string }
+  - { label: Text, name: text, widget: text }
+
+# ─── Collections ────────────────────────────────────────────────────────────────
+collections:
+  - name: projects
+    label: Projects
+    label_singular: Project
+    description: >-
+      Your portfolio case studies. Turn on "Published" to show a project on the site,
+      and "Featured" to show it on the Home page (4–6 featured projects works best).
+    folder: src/content/projects
+    # Paths relative to the entry file, so the editor can show thumbnails and Astro can optimize the images.
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: yml
+    format: yml
+    create: true
+    delete: true
+    slug: '{{slug}}'
+    identifier_field: title
+    summary: "{{title}} · {{category}}{{published | ternary('', ' · HIDDEN')}}{{featured | ternary(' · ★ Featured', '')}}"
+    sortable_fields: ['order', 'date', 'title', 'category']
+    view_filters:
+      - { label: Product, field: category, pattern: product }
+      - { label: Brand, field: category, pattern: brand }
+      - { label: Corporate, field: category, pattern: corporate }
+      - { label: Hidden, field: published, pattern: false }
+    editor:
+      preview: false
+    fields:
+      - label: Project title
+        name: title
+        widget: string
+        hint: 'The web address is created from this title. Do not name a project just "Product", "Brand" or "Corporate".'
+      - label: Category
+        name: category
+        widget: select
+        options:
+          - { label: Product, value: product }
+          - { label: Brand, value: brand }
+          - { label: Corporate, value: corporate }
+      - label: Concept / spec project
+        name: isConcept
+        widget: boolean
+        default: true
+        hint: 'ON if this was NOT a paid job for a real client. Shows a "Concept Project" badge. Be honest — this builds trust.'
+      - label: Client / brand name
+        name: client
+        widget: string
+        required: false
+        hint: Only if the brand gave written permission. Not shown on concept projects.
+      - label: Cover image
+        name: coverImage
+        widget: object
+        hint: Shown in the portfolio grid and at the top of the project page.
+        fields: *photo
+      - label: Gallery
+        name: gallery
+        widget: list
+        min: 6
+        max: 12
+        collapsed: true
+        summary: '{{fields.alt}}'
+        label_singular: photo
+        hint: '6–12 photos. Drag to reorder. Tip: upload all photos first in "Media", then add them here one by one.'
+        fields: *photo
+      - { label: 'Brief — Goal', name: goal, widget: text, hint: What was the project trying to achieve? }
+      - { label: 'Brief — Idea', name: idea, widget: text, hint: The creative idea or visual approach. }
+      - { label: 'Brief — Image use', name: usage, widget: text, hint: 'Where the images are used (store, ads, social…).' }
+      - { label: 'Brief — My role', name: role, widget: text, hint: 'What you did (concept, styling, lighting, retouching…).' }
+      - label: Services provided
+        name: services
+        widget: list
+        label_singular: service
+        required: false
+        hint: Shown as tags, e.g. Product Photography, Styling, Retouching.
+        field: { label: Service, name: service, widget: string }
+      - { label: Featured on Home page, name: featured, widget: boolean, default: false }
+      - { label: Published (visible on the site), name: published, widget: boolean, default: true }
+      - label: Order
+        name: order
+        widget: number
+        value_type: int
+        required: false
+        hint: Optional. 1 shows first. Projects without a number are sorted by date (newest first).
+      - label: Date
+        name: date
+        widget: datetime
+        format: YYYY-MM-DD
+        date_format: YYYY-MM-DD
+        time_format: false
+        picker_utc: true
+      - *seo
+
+  - name: services
+    label: Services
+    # Paths relative to the entry file, so the editor can show thumbnails and Astro can optimize the images.
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    description: The three service pages. Their example projects are added automatically from the matching category.
+    create: false
+    delete: false
+    editor:
+      preview: false
+    files:
+      - &service
+        label: Product Photography
+        name: product
+        file: src/content/services/product-photography.yml
+        fields:
+          - { label: Page title, name: title, widget: string }
+          - { label: Category, name: category, widget: hidden, default: product }
+          - { label: Sort order, name: order, widget: hidden, default: 1 }
+          - { label: Short summary (Home page card), name: cardSummary, widget: text }
+          - { label: 'What is it? (intro)', name: intro, widget: text }
+          - { label: Who it's for, name: whoItsFor, widget: text }
+          - label: What you get
+            name: deliverables
+            widget: list
+            label_singular: item
+            min: 1
+            field: { label: Item, name: item, widget: string }
+          - { label: How it works (steps), name: process, widget: list, label_singular: step, min: 1, max: 5, summary: '{{fields.title}}', fields: *steps }
+          - { label: Hero image, name: heroImage, widget: object, fields: *photo }
+          - *seo
+      - <<: *service
+        label: Brand Photography
+        name: brand
+        file: src/content/services/brand-photography.yml
+      - <<: *service
+        label: Corporate Photography
+        name: corporate
+        file: src/content/services/corporate-photography.yml
+
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    description: Only real quotes from real clients, with their permission. The section is hidden until at least one is published.
+    folder: src/content/testimonials
+    # Paths relative to the entry file, so the editor can show thumbnails and Astro can optimize the images.
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    extension: yml
+    format: yml
+    create: true
+    slug: '{{name}}-{{company}}'
+    identifier_field: name
+    summary: "{{name}} · {{company}}{{published | ternary('', ' · HIDDEN')}}"
+    editor:
+      preview: false
+    fields:
+      - { label: Quote, name: quote, widget: text }
+      - { label: Name, name: name, widget: string }
+      - { label: Role, name: role, widget: string, required: false }
+      - { label: Company, name: company, widget: string, required: false }
+      - label: Related project
+        name: projectRef
+        widget: relation
+        collection: projects
+        search_fields: [title]
+        value_field: '{{slug}}'
+        display_fields: [title]
+        required: false
+      - { label: 'Published (I have their permission)', name: published, widget: boolean, default: false }
+
+  - name: settings
+    label: Site Settings
+    # Paths relative to the entry file, so the editor can show thumbnails and Astro can optimize the images.
+    media_folder: ../../assets/uploads
+    public_folder: ../../assets/uploads
+    description: Home and About page text, contact details and form options.
+    create: false
+    delete: false
+    editor:
+      preview: false
+    files:
+      - label: Site Settings
+        name: site
+        file: src/content/settings/site.yml
+        fields:
+          - { label: Site / studio name, name: siteName, widget: string }
+          - { label: Tagline, name: tagline, widget: string, required: false }
+          - label: Location
+            name: location
+            widget: object
+            collapsed: true
+            fields:
+              - { label: City, name: city, widget: string }
+              - { label: Country code, name: country, widget: string, hint: 'Two letters, e.g. EG' }
+              - { label: Area served, name: areaServed, widget: string, required: false, hint: 'e.g. Cairo & Giza, Egypt' }
+
+          # Home
+          - { label: 'Home — Hero title', name: heroTitle, widget: string }
+          - { label: 'Home — Hero subtitle', name: heroSubtitle, widget: text }
+          - { label: 'Home — Hero image', name: heroImage, widget: object, fields: *photo }
+          - label: 'Home — Why work with me (3–4 points)'
+            name: whyWorkWithMe
+            widget: list
+            label_singular: point
+            max: 4
+            summary: '{{fields.title}}'
+            hint: Real things about how you work. No numbers or claims you can't prove.
+            fields: *steps
+          - { label: 'Final call-to-action title', name: finalCtaTitle, widget: string }
+          - { label: 'Final call-to-action text', name: finalCtaText, widget: text, required: false }
+
+          # About
+          - { label: 'About — Short (Home page)', name: aboutShort, widget: text }
+          - { label: 'About — Full text', name: aboutText, widget: text, hint: 'Leave an empty line between paragraphs. 80–120 words is ideal.' }
+          - { label: 'About — How I work (3–4 steps)', name: processSteps, widget: list, label_singular: step, max: 4, summary: '{{fields.title}}', fields: *steps }
+          - { label: 'About — Your photo', name: photographerPhoto, widget: object, fields: *photo }
+
+          # Contact
+          - label: WhatsApp number
+            name: whatsappNumber
+            widget: string
+            hint: 'Digits only, with country code, no + or spaces. Example: 201001234567'
+            pattern: ['^\d{8,15}$', 'Digits only with country code, e.g. 201001234567']
+          - { label: Default WhatsApp message, name: whatsappDefaultMessage, widget: string }
+          - { label: Email, name: email, widget: string, pattern: ['^[^@\s]+@[^@\s]+\.[^@\s]+$', 'Enter a valid email address'] }
+          - { label: Instagram link, name: instagram, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
+          - { label: LinkedIn link, name: linkedin, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
+          - { label: Wedding photography site (optional link in footer), name: weddingSiteUrl, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
+
+          # Form
+          - label: Inquiry form — budget ranges
+            name: budgetRanges
+            widget: list
+            label_singular: range
+            required: false
+            hint: 'Leave EMPTY to hide the budget question. Never put fixed prices here — ranges only, e.g. "5,000–10,000 EGP".'
+            field: { label: Range, name: range, widget: string }
+          - label: 'Inquiry form — "How did you hear about me?" options'
+            name: leadSources
+            widget: list
+            label_singular: option
+            required: false
+            field: { label: Option, name: option, widget: string }
+
+          - label: Client logos
+            name: clientLogos
+            widget: list
+            label_singular: logo
+            required: false
+            hint: Only brands that gave written permission. Hidden when empty.
+            summary: '{{fields.name}}'
+            fields:
+              - { label: Brand name, name: name, widget: string }
+              - { label: Logo, name: logo, widget: image, choose_url: false }
+
+          - label: Default SEO
+            name: defaultSeo
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Home page Google title, name: title, widget: string, pattern: ['^.{1,70}$', 'Keep it under 70 characters.'] }
+              - { label: Default description, name: description, widget: text, pattern: ['^[\s\S]{1,170}$', 'Keep it under 170 characters.'] }
+              - { label: Default share image (WhatsApp / LinkedIn preview), name: ogImage, widget: image, required: false, choose_url: false }

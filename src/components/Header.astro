@@ -1,0 +1,246 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { t } from '../i18n/en';
+
+interface Props {
+  siteName: string;
+  services: CollectionEntry<'services'>[];
+}
+
+const { siteName, services } = Astro.props;
+const path = Astro.url.pathname;
+const isActive = (prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a class="logo" href="/" aria-label={`${siteName} — ${t.nav.home}`}>{siteName}</a>
+
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="menu-toggle__open">{t.nav.menu}</span>
+      <span class="menu-toggle__close">{t.nav.close}</span>
+    </button>
+
+    <nav id="site-nav" class="nav" aria-label="Main">
+      <ul role="list" class="nav__list">
+        <li><a href="/work" aria-current={isActive('/work') ? 'page' : undefined}>{t.nav.work}</a></li>
+        <li class="has-sub">
+          <button type="button" class="sub-toggle" aria-expanded="false" aria-controls="services-sub">
+            {t.nav.services}
+          </button>
+          <ul role="list" id="services-sub" class="sub">
+            {
+              services.map((s) => (
+                <li>
+                  <a href={`/services/${s.id}`} aria-current={isActive(`/services/${s.id}`) ? 'page' : undefined}>
+                    {s.data.title}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </li>
+        <li><a href="/about" aria-current={isActive('/about') ? 'page' : undefined}>{t.nav.about}</a></li>
+        <li><a href="/contact" aria-current={isActive('/contact') ? 'page' : undefined}>{t.nav.contact}</a></li>
+      </ul>
+    </nav>
+
+    <a class="btn header-cta" href="/contact" data-event="start_project_click" data-event-location="header">
+      {t.nav.startProject}
+    </a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-block-end: 1px solid var(--line);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-block-size: var(--header-h);
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    text-decoration: none;
+    margin-inline-end: auto;
+    white-space: nowrap;
+  }
+
+  .header-cta {
+    min-block-size: 2.5rem;
+    padding: 0.5em 1em;
+    font-size: var(--step--1);
+    white-space: nowrap;
+  }
+  /* Very narrow phones: the floating WhatsApp button and "Contact" in the menu cover this. */
+  @media (max-width: 22.5em) {
+    .header-cta {
+      display: none;
+    }
+  }
+
+  .menu-toggle,
+  .sub-toggle {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .menu-toggle {
+    order: 3;
+    min-block-size: 2.75rem;
+    padding-inline: 0.5rem;
+    font-weight: 500;
+  }
+  .menu-toggle__close,
+  .menu-toggle[aria-expanded='true'] .menu-toggle__open {
+    display: none;
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__close {
+    display: inline;
+  }
+
+  .nav a,
+  .sub-toggle {
+    display: block;
+    text-decoration: none;
+    padding-block: 0.6rem;
+  }
+  .nav a[aria-current='page'] {
+    text-decoration: underline;
+  }
+  .sub-toggle::after {
+    content: '';
+    display: inline-block;
+    inline-size: 0.4em;
+    block-size: 0.4em;
+    margin-inline-start: 0.5em;
+    /* physical sides on purpose: a down-pointing chevron in both LTR and RTL */
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-0.2em) rotate(45deg);
+  }
+
+  /* Mobile: full-width dropdown panel */
+  .nav {
+    display: none;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 100%;
+    background: var(--bg);
+    border-block-end: 1px solid var(--line);
+    padding: 0.5rem var(--gutter) 1.5rem;
+    max-block-size: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+  }
+  .nav.is-open {
+    display: block;
+  }
+  .nav__list > li {
+    border-block-end: 1px solid var(--line);
+    font-size: var(--step-1);
+  }
+  .sub {
+    display: none;
+    padding-block-end: 0.5rem;
+    padding-inline-start: 1rem;
+    font-size: var(--step-0);
+  }
+  .sub-toggle[aria-expanded='true'] + .sub {
+    display: block;
+  }
+
+  @media (min-width: 56em) {
+    .menu-toggle {
+      display: none;
+    }
+    .header-cta {
+      order: 3;
+    }
+    .nav {
+      display: block;
+      position: static;
+      padding: 0;
+      background: none;
+      border: 0;
+      overflow: visible;
+      max-block-size: none;
+      margin-inline-end: 1rem;
+    }
+    .nav__list {
+      display: flex;
+      gap: 1.75rem;
+    }
+    .nav__list > li {
+      border: 0;
+      font-size: var(--step--1);
+      font-weight: 500;
+    }
+    .has-sub {
+      position: relative;
+    }
+    .sub {
+      position: absolute;
+      inset-block-start: 100%;
+      inset-inline-start: -1rem;
+      min-inline-size: 15rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgb(0 0 0 / 0.06);
+    }
+    .has-sub:hover .sub {
+      display: block;
+    }
+    .sub a {
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.getElementById('site-nav');
+  const subToggle = document.querySelector<HTMLButtonElement>('.sub-toggle');
+
+  const setMenu = (open: boolean) => {
+    toggle?.setAttribute('aria-expanded', String(open));
+    nav?.classList.toggle('is-open', open);
+  };
+  const setSub = (open: boolean) => subToggle?.setAttribute('aria-expanded', String(open));
+
+  toggle?.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+  subToggle?.addEventListener('click', () => setSub(subToggle.getAttribute('aria-expanded') !== 'true'));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (subToggle?.getAttribute('aria-expanded') === 'true') {
+      setSub(false);
+      subToggle.focus();
+    } else if (toggle?.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      toggle.focus();
+    }
+  });
+
+  // Close the desktop services dropdown when focus or a click leaves it.
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('.has-sub')) setSub(false);
+  });
+  document.querySelector('.has-sub')?.addEventListener('focusout', (e) => {
+    const next = (e as FocusEvent).relatedTarget as Node | null;
+    if (!next || !(e.currentTarget as Element).contains(next)) setSub(false);
+  });
+</script>
