@@ -8,13 +8,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "seed:images": "node scripts/generate-placeholders.mjs",
     "cms": "decap-server"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
+    "@videojs/html": "10.1.0",
     "astro": "^7.4.1",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "swiper": "^14.3.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.11",

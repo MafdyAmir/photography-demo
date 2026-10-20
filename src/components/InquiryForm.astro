@@ -11,9 +11,12 @@ import { getSettings } from '../lib/content';
 const settings = await getSettings();
 
 const NEEDS = [
-  { value: 'product', label: 'Product photography' },
-  { value: 'brand', label: 'Brand campaign' },
-  { value: 'corporate', label: 'Corporate photography' },
+  { value: 'events', label: 'Events coverage' },
+  { value: 'exhibitions', label: 'Exhibition coverage' },
+  { value: 'launches', label: 'Launch / opening' },
+  { value: 'social', label: 'Social & brand content' },
+  { value: 'podcast', label: 'Podcast production' },
+  { value: 'realestate', label: 'Real estate visuals' },
   { value: 'other', label: 'Other' },
 ] as const;
 
@@ -88,7 +91,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
     </div>
 
     <p class="hint full" id="f-contact-hint">
-      <span class="req">*</span> Email or phone — at least one, so I can reply.
+      <span class="req">*</span> Email or phone, at least one, so we can reply.
     </p>
 
     <div class="field full">
@@ -118,6 +121,11 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
     }
 
     <div class="field">
+      <label for="f-date">Event date <span class="opt">(optional)</span></label>
+      <input id="f-date" name="event_date" type="date" />
+    </div>
+
+    <div class="field">
       <label for="f-timeline">Timeline <span class="opt">(optional)</span></label>
       <select id="f-timeline" name="timeline">
         <option value="">Choose…</option>
@@ -132,7 +140,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
         name="details"
         rows="5"
         maxlength="3000"
-        placeholder="What are you photographing, how many products or people, and where will the images be used?"
+        placeholder="What's the event, where is it, how long does it run, and do you need photo, video or both?"
       ></textarea>
     </div>
 
@@ -140,7 +148,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
       settings.leadSources.length > 0 && (
         <div class="field">
           <label for="f-source">
-            How did you hear about me? <span class="opt">(optional)</span>
+            How did you hear about us? <span class="opt">(optional)</span>
           </label>
           <select id="f-source" name="heard_about">
             <option value="">Choose…</option>
@@ -186,7 +194,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
     font-size: var(--step--1);
   }
   .req {
-    color: var(--accent);
+    color: var(--gold);
   }
   .opt {
     font-weight: 400;
@@ -198,10 +206,11 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
     inline-size: 100%;
     min-block-size: 3rem;
     padding: 0.7rem 0.85rem;
-    border: 1px solid #b9b2a6;
-    border-radius: var(--radius);
-    background: var(--surface);
+    border: 1px solid #45464c;
+    border-radius: 0;
+    background: var(--bg);
     color: var(--ink);
+    color-scheme: dark;
     font: inherit;
     font-size: max(16px, 1rem); /* 16px+ stops iOS zooming into fields */
   }
@@ -211,16 +220,15 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 1px;
-    border-color: var(--focus);
+    outline: 2px solid var(--gold);
+    outline-offset: 0;
+    border-color: var(--gold);
   }
   [aria-invalid='true'] {
-    border-color: #b3261e;
-    background: #fff8f7;
+    border-color: var(--danger);
   }
   .err {
-    color: #b3261e;
+    color: var(--danger);
     font-size: var(--step--1);
     min-block-size: 0;
   }
@@ -233,14 +241,13 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
     margin-block-start: -0.5rem;
   }
   .hint.is-error {
-    color: #b3261e;
+    color: var(--danger);
   }
   .form-error {
     margin-block-start: 1.5rem;
     padding: 0.75rem 1rem;
-    border-inline-start: 3px solid #b3261e;
-    background: #fff8f7;
-    color: #b3261e;
+    border: 1px solid var(--danger);
+    color: var(--danger);
   }
   .actions {
     display: flex;
@@ -273,7 +280,7 @@ const TIMELINES = ['As soon as possible', 'Within a month', 'Flexible'];
     const hint = $<HTMLElement>('#f-contact-hint');
     const summary = $<HTMLElement>('.form-error');
 
-    // Pre-select "What do you need?" from ?service=product|brand|corporate
+    // Pre-select "What do you need?" from ?service=events|exhibitions|launches|social
     const service = new URLSearchParams(location.search).get('service');
     const need = $<HTMLSelectElement>('#f-need');
     if (service && [...need.options].some((o) => o.value === service)) need.value = service;

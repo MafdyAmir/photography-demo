@@ -1,0 +1,157 @@
+---
+/**
+ * Page transition: a camera iris (the aperture in the logo). Curved blades close over the page on an
+ * internal link click, the next page loads behind them, then they open. No library: an SVG + rAF.
+ * Each blade is a big circle; the hole their union leaves is the aperture. Off for reduced motion.
+ * BaseLayout's head script adds `iris-in` to <html> before paint when the previous page closed the iris.
+ */
+const N = 8; // blades
+const B = 2; // smaller = more curved blade edges // blade radius, in units where the viewport's larger half-side = 1
+const CLOSED = -0.08; // aperture radius when shut (negative = blades overlap the centre)
+// Each blade casts a shadow onto its neighbour: the same circle, turned a few degrees further.
+const SHADOW = 0.07; // radians
+const pos = (k: number, r: number, turn = 0) => {
+  const a = (k / N) * Math.PI * 2 + turn;
+  return { cx: ((B + r) * Math.cos(a)).toFixed(4), cy: ((B + r) * Math.sin(a)).toFixed(4) };
+};
+---
+
+<div class="iris" aria-hidden="true">
+  <svg viewBox="-1 -1 2 2" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <radialGradient id="iris-blade" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0.7" stop-color="#101113"></stop>
+        <stop offset="0.95" stop-color="#2b2d33"></stop>
+        <stop offset="1" stop-color="#3a3d44"></stop>
+      </radialGradient>
+    </defs>
+    <g class="iris__blades">
+      {
+        Array.from({ length: N }, (_, k) => (
+          <>
+            <circle class="iris__shadow" r={B} {...pos(k, CLOSED, SHADOW)} />
+            <circle class="iris__blade" r={B} {...pos(k, CLOSED)} />
+          </>
+        ))
+      }
+    </g>
+  </svg>
+</div>
+
+<style>
+  .iris {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  :global(html.iris-in) .iris,
+  .iris.is-active {
+    visibility: visible;
+  }
+  .iris svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .iris__blade {
+    fill: url(#iris-blade);
+    stroke: var(--gold);
+    stroke-opacity: 0.75;
+    stroke-width: 0.004;
+  }
+  .iris__shadow {
+    fill: #000;
+    opacity: 0.55;
+  }
+</style>
+
+<script>
+  const N = 8;
+  const B = 2;
+  const SHADOW = 0.07;
+  const CLOSED = -0.08;
+  const TWIST = 50; // degrees the blades swing while opening
+
+  const iris = document.querySelector<HTMLElement>('.iris')!;
+  const group = iris.querySelector('g')!;
+  const circles = [...group.querySelectorAll('circle')]; // shadow, blade, shadow, blade…
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const set = (t: number) => {
+    // t: 0 = shut, 1 = open
+    // Fully open = the viewport's half-diagonal (units: larger half-side = 1), so blades move from the first frame.
+    const open = Math.hypot(innerWidth, innerHeight) / Math.max(innerWidth, innerHeight) + 0.02;
+    const r = CLOSED + (open - CLOSED) * t;
+    circles.forEach((c, i) => {
+      const a = (Math.floor(i / 2) / N) * Math.PI * 2 + (i % 2 ? 0 : SHADOW);
+      c.setAttribute('cx', String((B + r) * Math.cos(a)));
+      c.setAttribute('cy', String((B + r) * Math.sin(a)));
+    });
+    group.setAttribute('transform', `rotate(${TWIST * t})`);
+  };
+
+  const run = (from: number, to: number, ms: number, ease: (x: number) => number) =>
+    new Promise<void>((done) => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - start) / ms);
+        set(from + (to - from) * ease(p));
+        p < 1 ? requestAnimationFrame(tick) : done();
+      };
+      requestAnimationFrame(tick);
+    });
+
+  const easeOut = (x: number) => 1 - Math.pow(1 - x, 4);
+  const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+  // Arriving: the iris is shut (head script), so open it on the new page.
+  if (document.documentElement.classList.contains('iris-in')) {
+    sessionStorage.removeItem('iris');
+    // A short beat with the shutter shut, then open.
+    setTimeout(() => run(0, 1, 800, easeOut), 90);
+    // Timer, not the last animation frame: rAF pauses in hidden tabs and must never leave the iris shut.
+    setTimeout(() => document.documentElement.classList.remove('iris-in'), 950);
+  }
+
+  // Leaving: shut the iris, then go. Only plain same-site page links.
+  document.addEventListener('click', (e) => {
+    if (reduced.matches || e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = (e.target as Element).closest?.('a');
+    if (!a || a.target || a.hasAttribute('download') || a.hasAttribute('data-film')) return;
+    const to = new URL(a.href, location.href);
+    if (to.origin !== location.origin || /\.(mp4|jpe?g|png|webp|avif|pdf|xml)$/i.test(to.pathname)) return;
+    if (to.pathname === location.pathname && to.search === location.search) return; // same page / #hash
+    if (to.pathname.includes('/admin')) return;
+    e.preventDefault();
+    iris.classList.add('is-active');
+    // Start loading partway through the close (on a timer, so a paused animation can't block the click).
+    // The old page stays on screen until the new one arrives; if that's slow, the shut blades breathe
+    // like a lens hunting focus, so it never looks frozen.
+    run(1, 0, 420, easeInOut).then(breathe);
+    setTimeout(() => {
+      sessionStorage.setItem('iris', '1');
+      location.href = to.href;
+    }, 260);
+  });
+
+  let breathing = false;
+  const breathe = async () => {
+    breathing = true;
+    while (breathing) {
+      await run(0, 0.07, 650, easeInOut);
+      await run(0.07, 0, 650, easeInOut);
+    }
+  };
+
+  // Back/forward from the page cache: never come back to a shut iris.
+  addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      breathing = false;
+      iris.classList.remove('is-active');
+      document.documentElement.classList.remove('iris-in');
+      set(1);
+    }
+  });
+</script>

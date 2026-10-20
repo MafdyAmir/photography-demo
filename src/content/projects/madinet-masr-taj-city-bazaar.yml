@@ -1,0 +1,30 @@
+title: "Madinet Masr — Taj City Bazaar"
+category: launches
+client: "Madinet Masr"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/madinet-masr-taj-city-bazaar-07.jpg
+  alt: "Folk band performing on an arched stage at night"
+gallery:
+  - src: ../../assets/uploads/madinet-masr-taj-city-bazaar-02.jpg
+    alt: "Shoppers at a colourful brand booth"
+  - src: ../../assets/uploads/madinet-masr-taj-city-bazaar-03.jpg
+    alt: "Crowd at the I Make This booth"
+  - src: ../../assets/uploads/madinet-masr-taj-city-bazaar-04.jpg
+    alt: "Visitors entering a booth at the bazaar"
+  - src: ../../assets/uploads/madinet-masr-taj-city-bazaar-05.jpg
+    alt: "Pink arched gateway at night"
+  - src: ../../assets/uploads/madinet-masr-taj-city-bazaar-06.jpg
+    alt: "Musician playing a mizmar on stage"
+  - src: ../../assets/uploads/madinet-masr-taj-city-bazaar-08.jpg
+    alt: "Arched stage and Taj City sign in daylight"
+summary: "Madinet Masr's winter bazaar at Taj City: brand booths, shoppers, and folk musicians on a stage built from arches."
+coverage:
+  - "Event photography"
+  - "Brand booths"
+featured: false
+published: true
+order: 11
+date: 2025-08-10
+seo:
+  description: "Madinet Masr's winter bazaar at Taj City: brand booths, shoppers, and folk musicians on a stage built from arches."

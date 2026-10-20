@@ -1,0 +1,46 @@
+title: "Sailun × Nacita Drift Race"
+category: social
+client: "Sailun Tyre × Nacita Mobility"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/sailun-nacita-drift-race-05.jpg
+  alt: "White rally car drifting towards the camera in a cloud of dust"
+gallery:
+  - src: ../../assets/uploads/sailun-nacita-drift-race-10.jpg
+    alt: "Off-road buggy drifting and throwing up dust at sunset"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-08.jpg
+    alt: "Rear view of a buggy kicking up sand as it slides"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-04.jpg
+    alt: "Drivers standing beside their cars under the sponsor tents"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-11.jpg
+    alt: "Driver in a yellow Nacita helmet looking out from the car"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-14.jpg
+    alt: "Smiling driver in a Sailun Tyre shirt holding a helmet and gesturing"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-01.jpg
+    alt: "Row of race cars and sponsor tents on the track"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-18.jpg
+    alt: "Close-up of a race car's headlight and Sailun Tyre livery"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-19.jpg
+    alt: "Driver in a helmet with a mounted action camera"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-06.jpg
+    alt: "Driver in a yellow helmet with arms crossed under the sponsor tent"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-17.jpg
+    alt: "Back of a driver's shirt printed with A. Hashim and the Sailun Tyre logo"
+  - src: ../../assets/uploads/sailun-nacita-drift-race-13.jpg
+    alt: "Buggy wheel spraying dust mid-drift"
+videos:
+  - src: /videos/1353663135912617.mp4
+    title: "Sailun × Nacita Drift Race — highlight film"
+    orientation: horizontal
+    poster: ../../assets/uploads/sailun-nacita-drift-race-video-1.jpg
+summary: "A drift day for Sailun Tyre and Nacita Mobility: cars sliding through dust, drivers in branded kit, and close-ups made for the sponsors' social channels."
+coverage:
+  - "Action photography"
+  - "Brand portraits"
+  - "Social reel"
+featured: true
+published: true
+order: 1
+date: 2025-12-18
+seo:
+  description: "A drift day for Sailun Tyre and Nacita Mobility: cars sliding through dust, drivers in branded kit, and close-ups made for the sponsors' social channels."

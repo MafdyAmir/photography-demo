@@ -1,0 +1,48 @@
+title: "HACE Hotel Expo — International Cool Center"
+category: exhibitions
+client: "International Cool Center × Ozti"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/hace-hotel-expo-international-cool-center-08.jpg
+  alt: "Chefs cooking live at the International Cool Center booth"
+gallery:
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-01.jpg
+    alt: "Chef holding up grilled food in front of the Ozti logo"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-02.jpg
+    alt: "Two chefs serving trays of food at the booth"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-03.jpg
+    alt: "Chef whisking in a steel tray"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-04.jpg
+    alt: "Exhibition building entrance with event banners"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-06.jpg
+    alt: "HACE Hotel Expo entrance tent"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-07.jpg
+    alt: "Visitors in conversation with the booth team"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-09.jpg
+    alt: "Visitors at the booth counter"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-10.jpg
+    alt: "Banner-lined walkway to the exhibition hall"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-11.jpg
+    alt: "Two visitors checking a phone in Hall 3"
+  - src: ../../assets/uploads/hace-hotel-expo-international-cool-center-12.jpg
+    alt: "Team group photo behind a long line of kitchen equipment"
+videos:
+  - src: /videos/1076745548264940.mp4
+    title: "HACE Hotel Expo — International Cool Center — reel 1"
+    orientation: vertical
+    poster: ../../assets/uploads/hace-hotel-expo-international-cool-center-video-1.jpg
+  - src: /videos/1202314835068129.mp4
+    title: "HACE Hotel Expo — International Cool Center — reel 2"
+    orientation: vertical
+    poster: ../../assets/uploads/hace-hotel-expo-international-cool-center-video-2.jpg
+summary: "Live cooking demos and buyer meetings at the International Cool Center and Ozti booth, at HACE Hotel Expo."
+coverage:
+  - "Booth photography"
+  - "Live demos"
+  - "Highlight films"
+featured: false
+published: true
+order: 7
+date: 2025-08-26
+seo:
+  description: "Live cooking demos and buyer meetings at the International Cool Center and Ozti booth, at HACE Hotel Expo."

@@ -1,7 +1,7 @@
 ---
 /**
- * Project gallery + lightbox (PRD FR-5): full image, swipe on touch, arrow keys on desktop, Esc to close.
- * Uses the native <dialog> element for focus trapping and Esc handling.
+ * Project gallery + lightbox (PRD FR-5): a Swiper inside a native <dialog> (focus trap + Esc).
+ * Swipe, pinch/double-tap zoom, arrow keys. Swiper loads on the first open; slides carry real alt text.
  */
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -34,9 +34,6 @@ const full = await Promise.all(
             type="button"
             class="gallery__item"
             data-index={i}
-            data-full={full[i].src}
-            data-srcset={full[i].srcset}
-            data-alt={img.alt}
             aria-label={`${t.project.openImage} ${i + 1}: ${img.alt}`}
           >
             <Photo image={img} sizes="(min-width: 48em) 50vw, 100vw" />
@@ -47,16 +44,26 @@ const full = await Promise.all(
   </ul>
 
   <dialog class="lightbox" aria-label={L.label}>
-    <figure class="lightbox__figure">
-      <img class="lightbox__img" alt="" sizes="100vw" draggable="false" />
-      <figcaption class="lightbox__caption">
-        <span class="lightbox__count" aria-live="polite"></span>
-        <span class="lightbox__alt"></span>
-      </figcaption>
-    </figure>
-    <button type="button" class="lb-btn lb-close" data-close aria-label={L.close}>✕</button>
-    <button type="button" class="lb-btn lb-prev" data-prev aria-label={L.prev}>‹</button>
-    <button type="button" class="lb-btn lb-next" data-next aria-label={L.next}>›</button>
+    <div class="swiper lightbox__swiper">
+      <div class="swiper-wrapper">
+        {
+          images.map((img, i) => (
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container">
+                <img src={full[i].src} srcset={full[i].srcset} sizes="100vw" alt={img.alt} loading="lazy" draggable="false" />
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    <p class="lightbox__caption">
+      <span class="lightbox__count" aria-live="polite"></span>
+      <span class="lightbox__alt" aria-hidden="true"></span>
+    </p>
+    <button type="button" class="lb-btn lb-close" data-close aria-label={L.close}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"></path></svg></button>
+    <button type="button" class="lb-btn lb-prev" data-prev aria-label={L.prev}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"></path></svg></button>
+    <button type="button" class="lb-btn lb-next" data-next aria-label={L.next}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"></path></svg></button>
   </dialog>
 </div>
 
@@ -81,7 +88,7 @@ const full = await Promise.all(
     inline-size: 100%;
     padding: 0;
     border: 0;
-    background: var(--surface-2);
+    background: var(--surface);
     cursor: zoom-in;
   }
   .gallery__item :global(img) {
@@ -96,34 +103,45 @@ const full = await Promise.all(
     margin: 0;
     padding: 0;
     border: 0;
-    background: #0f0e0d;
-    color: #eee;
-    touch-action: pan-y;
+    background: #050506;
+    color: var(--ink);
+    display: none;
+    grid-template-rows: 1fr auto;
   }
   .lightbox::backdrop {
-    background: #0f0e0d;
+    background: #050506;
   }
-  .lightbox__figure {
+  .lightbox[open] {
     display: grid;
-    grid-template-rows: 1fr auto;
-    block-size: 100%;
-    margin: 0;
-    padding: 3.5rem 0.5rem 0.75rem;
   }
-  .lightbox__img {
+  .lightbox__swiper {
     inline-size: 100%;
-    block-size: 100%;
+    min-block-size: 0;
+    padding-block-start: 3.5rem;
+  }
+  .lightbox__swiper :global(.swiper-slide) {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .lightbox__swiper img {
+    max-inline-size: 100%;
     max-block-size: calc(100dvh - 7rem);
     object-fit: contain;
     user-select: none;
+  }
+  .lightbox__count {
+    flex: none;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
   .lightbox__caption {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    padding: 0.75rem 1rem 0;
+    padding: 0.75rem 1rem;
     font-size: var(--step--1);
-    color: #bbb;
+    color: var(--muted);
     text-align: center;
   }
   .lb-btn {
@@ -133,23 +151,21 @@ const full = await Promise.all(
     inline-size: 3rem;
     block-size: 3rem;
     border: 0;
-    border-radius: 50%;
-    background: rgb(255 255 255 / 0.1);
-    color: #fff;
-    font-size: 1.6rem;
-    line-height: 1;
+    background: rgb(255 255 255 / 0.08);
+    color: var(--ink);
     cursor: pointer;
   }
   .lb-btn:hover {
-    background: rgb(255 255 255 / 0.2);
-  }
-  .lb-btn:focus-visible {
-    outline-color: #9cc0ff;
+    background: var(--gold);
+    color: var(--on-gold);
   }
   .lb-close {
     inset-block-start: 0.5rem;
     inset-inline-end: 0.5rem;
-    font-size: 1.1rem;
+  }
+  [dir='rtl'] .lb-prev svg,
+  [dir='rtl'] .lb-next svg {
+    transform: scaleX(-1);
   }
   .lb-prev,
   .lb-next {
@@ -172,60 +188,44 @@ const full = await Promise.all(
 </style>
 
 <script>
+  import type Swiper from 'swiper';
+
   document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
     const items = [...root.querySelectorAll<HTMLButtonElement>('.gallery__item')];
     const dialog = root.querySelector<HTMLDialogElement>('dialog')!;
-    const img = dialog.querySelector<HTMLImageElement>('.lightbox__img')!;
     const count = dialog.querySelector<HTMLElement>('.lightbox__count')!;
     const caption = dialog.querySelector<HTMLElement>('.lightbox__alt')!;
-    const rtl = document.documentElement.dir === 'rtl';
-    let index = 0;
+    const slides = [...dialog.querySelectorAll<HTMLImageElement>('.swiper-slide img')];
+    let swiper: Swiper | undefined;
 
-    const show = (i: number) => {
-      index = (i + items.length) % items.length;
-      const item = items[index];
-      img.srcset = item.dataset.srcset ?? '';
-      img.src = item.dataset.full ?? '';
-      img.alt = item.dataset.alt ?? '';
-      caption.textContent = item.dataset.alt ?? '';
-      count.textContent = `${index + 1} / ${items.length}`;
+    const label = (i: number) => {
+      count.textContent = `${i + 1} / ${slides.length}`;
+      caption.textContent = slides[i]?.alt ?? '';
     };
 
-    items.forEach((item, i) =>
-      item.addEventListener('click', () => {
-        show(i);
-        dialog.showModal();
-      }),
-    );
+    const open = async (i: number) => {
+      dialog.showModal();
+      label(i);
+      if (swiper) return swiper.slideTo(i, 0);
+      const { Swiper: SwiperClass, Navigation, Keyboard, Zoom, A11y } = await import('../scripts/swiper');
+      swiper = new SwiperClass(dialog.querySelector<HTMLElement>('.swiper')!, {
+        modules: [Navigation, Keyboard, Zoom, A11y],
+        initialSlide: i,
+        spaceBetween: 24,
+        keyboard: { enabled: true },
+        zoom: { maxRatio: 3 },
+        navigation: { prevEl: dialog.querySelector<HTMLElement>('[data-prev]'), nextEl: dialog.querySelector<HTMLElement>('[data-next]') },
+        on: { slideChange: (s) => label(s.activeIndex) },
+      });
+    };
 
-    // Return focus to the thumbnail that opened the viewer.
-    dialog.addEventListener('close', () => items[index]?.focus());
+    items.forEach((item, i) => item.addEventListener('click', () => open(i)));
 
+    // Return focus to the thumbnail of the photo being viewed; reset any zoom.
+    dialog.addEventListener('close', () => {
+      swiper?.zoom.out();
+      items[swiper?.activeIndex ?? 0]?.focus();
+    });
     dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
-    dialog.querySelector('[data-prev]')!.addEventListener('click', () => show(index - 1));
-    dialog.querySelector('[data-next]')!.addEventListener('click', () => show(index + 1));
-
-    dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') show(index + (rtl ? -1 : 1));
-      if (e.key === 'ArrowLeft') show(index + (rtl ? 1 : -1));
-    });
-
-    // Swipe left/right.
-    let startX: number | null = null;
-    let startY = 0;
-    dialog.addEventListener('pointerdown', (e) => {
-      startX = e.clientX;
-      startY = e.clientY;
-    });
-    dialog.addEventListener('pointercancel', () => (startX = null));
-    dialog.addEventListener('pointerup', (e) => {
-      if (startX === null) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      startX = null;
-      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
-      const forward = rtl ? dx > 0 : dx < 0;
-      show(index + (forward ? 1 : -1));
-    });
   });
 </script>

@@ -1,0 +1,34 @@
+title: "Galleria × Azab Fashion Talks"
+category: events
+client: "Galleria × Azab"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/galleria-azab-fashion-talks-01.jpg
+  alt: "Two models in pleated bronze and green-patterned gowns with gold collar necklaces"
+gallery:
+  - src: ../../assets/uploads/galleria-azab-fashion-talks-02.jpg
+    alt: "Model in a sculpted white and black chevron dress with gold cuffs"
+  - src: ../../assets/uploads/galleria-azab-fashion-talks-03.jpg
+    alt: "Model in a jewelled headpiece and layered blue and green robe"
+  - src: ../../assets/uploads/galleria-azab-fashion-talks-04.jpg
+    alt: "Model in a fringed bronze dress with a gold beaded collar"
+  - src: ../../assets/uploads/galleria-azab-fashion-talks-05.jpg
+    alt: "Model in a mint dress walking the runway in front of the gold arch backdrop"
+  - src: ../../assets/uploads/galleria-azab-fashion-talks-06.jpg
+    alt: "Panel speakers seated on stage with two models standing either side"
+videos:
+  - src: /videos/2420821001679007.mp4
+    title: "Galleria × Azab Fashion Talks — reel"
+    orientation: vertical
+    poster: ../../assets/uploads/galleria-azab-fashion-talks-video-1.jpg
+summary: "A fashion showcase and panel talk: models presenting Azab's collection between the arches, followed by a conversation on stage about style and design."
+coverage:
+  - "Event photography"
+  - "Runway & portraits"
+  - "Highlight reel"
+featured: true
+published: true
+order: 3
+date: 2026-05-26
+seo:
+  description: "A fashion showcase and panel talk: models presenting Azab's collection between the arches, followed by a conversation on stage about style and design."

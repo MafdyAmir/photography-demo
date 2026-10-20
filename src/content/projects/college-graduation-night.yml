@@ -1,0 +1,22 @@
+title: "College Graduation Night"
+category: events
+client: "Eventakoo Events"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/college-graduation-night-cover.jpg
+  alt: "Graduate in a black gown and gold sash giving a thumbs-up beside a SENIOR sign"
+videos:
+  - src: /videos/812780954889599.mp4
+    title: "College Graduation Night — highlight film"
+    orientation: horizontal
+    poster: ../../assets/uploads/college-graduation-night-cover.jpg
+summary: "A college graduation organised by Eventakoo Events: the walk to the stage, the awards, and a hall full of families with their phones up."
+coverage:
+  - "Event videography"
+  - "Highlight film"
+featured: false
+published: true
+order: 16
+date: 2025-11-23
+seo:
+  description: "Highlight film of a college graduation night organised by Eventakoo Events in Cairo."

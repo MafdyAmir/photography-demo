@@ -13,6 +13,8 @@ export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
   output: 'static',
+  // Next page starts loading on hover/tap, while the camera iris closes (Iris.astro).
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   trailingSlash: 'never',
   build: { format: 'file' },
   // English only for the MVP. Add 'ar' here (and src/i18n/ar.ts) when the Arabic/RTL version is built.
@@ -24,7 +26,7 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.google(),
-      name: 'Inter',
+      name: 'Barlow',
       cssVariable: '--font-sans',
       weights: [400, 500, 600],
       styles: ['normal'],
@@ -32,13 +34,14 @@ export default defineConfig({
       fallbacks: ['system-ui', 'sans-serif'],
     },
     {
+      // Wayfinding-signage grotesque for hall letters, headings and booth codes.
       provider: fontProviders.google(),
-      name: 'Instrument Serif',
-      cssVariable: '--font-serif',
-      weights: [400],
-      styles: ['normal', 'italic'],
+      name: 'Big Shoulders',
+      cssVariable: '--font-display',
+      weights: [700, 800, 900],
+      styles: ['normal'],
       subsets: ['latin'],
-      fallbacks: ['Georgia', 'serif'],
+      fallbacks: ['Arial Narrow', 'sans-serif'],
     },
   ],
   integrations: [

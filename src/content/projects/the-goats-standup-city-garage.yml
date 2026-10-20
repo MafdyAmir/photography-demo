@@ -1,0 +1,46 @@
+title: "The Goats Stand-up Night"
+category: events
+client: "The Goats · City Garage"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/the-goats-standup-city-garage-08.jpg
+  alt: "Packed comedy hall facing a stage lit by beams of light"
+gallery:
+  - src: ../../assets/uploads/the-goats-standup-city-garage-05.jpg
+    alt: "Comedians posing on stage in front of the cheering audience"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-06.jpg
+    alt: "Comedian on stage in front of large screens reading The Goats"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-09.jpg
+    alt: "Audience members laughing in the front rows"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-07.jpg
+    alt: "Comedian in a pink sweater performing in front of The Goats screen"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-02.jpg
+    alt: "Wide view of the venue with the audience facing the stage"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-04.jpg
+    alt: "Comedian in a white cap mid-joke on stage"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-13.jpg
+    alt: "Comedian in a white cap performing to the seated crowd"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-03.jpg
+    alt: "Audience watching the comedians on the big screen"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-16.jpg
+    alt: "Aisle view down the full hall towards the stage"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-01.jpg
+    alt: "Comedian in a beanie holding the microphone"
+  - src: ../../assets/uploads/the-goats-standup-city-garage-15.jpg
+    alt: "Comedian in a pink sweater smiling at the audience"
+videos:
+  - src: /videos/1618012655833909.mp4
+    title: "The Goats Stand-up Night — reel"
+    orientation: vertical
+    poster: ../../assets/uploads/the-goats-standup-city-garage-video-1.jpg
+summary: "A sold-out stand-up comedy night by The Goats at City Garage: comedians, a full house and the big screen behind them."
+coverage:
+  - "Event photography"
+  - "Crowd & stage"
+  - "Highlight reel"
+featured: true
+published: true
+order: 5
+date: 2025-12-15
+seo:
+  description: "A sold-out stand-up comedy night by The Goats at City Garage: comedians, a full house and the big screen behind them."

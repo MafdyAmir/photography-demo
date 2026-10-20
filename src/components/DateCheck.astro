@@ -1,0 +1,176 @@
+---
+/**
+ * "Check your date": the site's primary action. Event date (+ venue) opens WhatsApp with the message written.
+ * `bar` is the compact sticky version for phones (date only). Without JS the form still opens the chat.
+ */
+import WhatsAppIcon from './WhatsAppIcon.astro';
+import { getSettings } from '../lib/content';
+import { t } from '../i18n/en';
+
+interface Props {
+  variant?: 'inline' | 'bar';
+  /** Service name added to the message, e.g. "Exhibition Coverage". */
+  service?: string;
+  /** Analytics label. */
+  location: string;
+}
+
+const { variant = 'inline', service, location } = Astro.props;
+const { whatsappNumber } = await getSettings();
+const id = `dc-${location}`;
+const D = t.dateCheck;
+---
+
+<form
+  class:list={['date-check', `date-check--${variant}`]}
+  action={`https://wa.me/${whatsappNumber}`}
+  method="get"
+  target="_blank"
+  data-date-check
+  data-number={whatsappNumber}
+  data-service={service}
+  aria-label={D.title}
+>
+  {variant === 'inline' && <p class="date-check__title">{D.title}</p>}
+  <div class="date-check__fields">
+    <label class="date-check__field">
+      <span class:list={[variant === 'bar' && 'visually-hidden']}>{D.date}</span>
+      <input id={`${id}-date`} type="date" name="date" required />
+    </label>
+    {
+      variant === 'inline' && (
+        <label class="date-check__field">
+          <span>{D.venue}</span>
+          <input id={`${id}-venue`} type="text" name="venue" placeholder={D.venuePlaceholder} autocomplete="off" />
+        </label>
+      )
+    }
+    <button class="btn date-check__send" type="submit" data-event="whatsapp_click" data-event-location={location}>
+      <WhatsAppIcon size={20} />
+      <span class:list={[variant === 'bar' && 'date-check__long']}>{D.send}</span>
+      {variant === 'bar' && <span class="date-check__short">{D.sendShort}</span>}
+    </button>
+  </div>
+  {variant === 'inline' && <p class="date-check__note">{D.note}</p>}
+</form>
+
+<style>
+  .date-check--inline {
+    container-type: inline-size;
+  }
+  .date-check__title {
+    font: 800 var(--step-1) / 1 var(--font-sign);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-block-end: 0.9rem;
+  }
+  .date-check__fields {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .date-check__field {
+    display: grid;
+    gap: 0.35rem;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  input {
+    inline-size: 100%;
+    min-block-size: 3rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid #45464c;
+    border-radius: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+    font-size: max(16px, 1rem); /* 16px+ stops iOS zooming into fields */
+    color-scheme: dark;
+  }
+  input::placeholder {
+    color: #8b877f;
+  }
+  input:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 0;
+    border-color: var(--gold);
+  }
+  .date-check__note {
+    margin-block-start: 0.75rem;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  /* Lays out by the space it is given, not the viewport: stacks in narrow panels. */
+  @container (min-width: 26rem) {
+    .date-check__fields {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+    }
+    .date-check__send {
+      grid-column: 1 / -1;
+    }
+  }
+  @container (min-width: 40rem) {
+    .date-check__fields {
+      grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.4fr) auto;
+    }
+    .date-check__send {
+      grid-column: auto;
+    }
+  }
+
+  /* Sticky phone bar: date + send, always in reach of the thumb. */
+  .date-check--bar {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 40;
+    padding: 0.6rem var(--gutter) max(0.6rem, env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    border-block-start: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+  }
+  .date-check--bar .date-check__fields {
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+  }
+  .date-check--bar input {
+    min-block-size: 2.9rem;
+  }
+  .date-check--bar .date-check__send {
+    min-block-size: 2.9rem;
+  }
+  .date-check__short {
+    display: none;
+  }
+  @media (max-width: 27em) {
+    .date-check--bar .date-check__long {
+      display: none;
+    }
+    .date-check--bar .date-check__short {
+      display: inline;
+    }
+  }
+  @media (min-width: 56em) {
+    .date-check--bar {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { whatsappMessages, whatsappUrl } from '../lib/whatsapp';
+
+  document.querySelectorAll<HTMLFormElement>('[data-date-check]').forEach((form) => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const raw = String(data.get('date') ?? '');
+      const venue = String(data.get('venue') ?? '').trim();
+      const date = raw
+        ? new Date(`${raw}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+        : 'a date to confirm';
+      const text = whatsappMessages.date(date, venue, form.dataset.service);
+      window.open(whatsappUrl(form.dataset.number ?? '', text), '_blank', 'noopener');
+    });
+  });
+</script>

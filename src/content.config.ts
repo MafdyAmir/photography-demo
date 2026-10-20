@@ -5,7 +5,7 @@ import type { SchemaContext } from 'astro:content';
 
 // Shared field schemas -------------------------------------------------------
 
-export const CATEGORIES = ['product', 'brand', 'corporate'] as const;
+export const CATEGORIES = ['events', 'exhibitions', 'launches', 'social'] as const;
 
 /** Every image on the site carries descriptive alt text (PRD §7, §8). */
 const imageWithAlt = ({ image }: SchemaContext) =>
@@ -43,18 +43,29 @@ const projects = defineCollection({
     z.object({
       title: z.string().trim().min(1),
       category: z.enum(CATEGORIES),
-      client: optionalText(), // only shown when the brand gave permission
-      isConcept: z.boolean().default(true),
+      client: optionalText(),
+      isConcept: z.boolean().default(false), // self-initiated work only; shows the "Concept Project" badge
       coverImage: imageWithAlt(ctx),
-      gallery: z
-        .array(imageWithAlt(ctx))
-        .min(6, 'A project needs at least 6 gallery images.')
-        .max(12, 'A project can have at most 12 gallery images.'),
-      goal: z.string().trim().min(1),
-      idea: z.string().trim().min(1),
-      usage: z.string().trim().min(1),
-      role: z.string().trim().min(1),
-      services: z.preprocess(empty, z.array(z.string().trim().min(1)).default([])),
+      gallery: z.preprocess(
+        empty,
+        z.array(imageWithAlt(ctx)).max(12, 'A project can have at most 12 gallery images.').default([]),
+      ),
+      // Self-hosted MP4s in public/videos. Loaded only when the visitor presses play.
+      videos: z.preprocess(
+        empty,
+        z
+          .array(
+            z.object({
+              src: z.string().trim().regex(/^\/videos\/[\w.-]+\.mp4$/, 'Upload the MP4 to the Videos folder.'),
+              title: z.string().trim().min(3),
+              orientation: z.enum(['horizontal', 'vertical']).default('horizontal'),
+              poster: ctx.image(),
+            }),
+          )
+          .default([]),
+      ),
+      summary: z.string().trim().min(1),
+      coverage: z.preprocess(empty, z.array(z.string().trim().min(1)).default([])),
       featured: z.boolean().default(false),
       published: z.boolean().default(false),
       order: z.preprocess(empty, z.coerce.number().int().optional()),
@@ -63,7 +74,7 @@ const projects = defineCollection({
     }),
 });
 
-/** The three fixed service pages: /services/<id>. */
+/** The four fixed service pages: /services/<id>. */
 const services = defineCollection({
   loader: glob({ pattern: '**/*.{yml,yaml}', base: './src/content/services' }),
   schema: (ctx) =>
@@ -119,7 +130,7 @@ const settings = defineCollection({
       aboutShort: z.string().trim().min(1), // Home teaser
       aboutText: z.string().trim().min(1), // Full About page (paragraphs separated by blank lines)
       processSteps: z.preprocess(empty, z.array(step).max(4).default([])),
-      photographerPhoto: imageWithAlt(ctx),
+      aboutImage: imageWithAlt(ctx),
 
       // Contact
       whatsappNumber: z
@@ -130,7 +141,8 @@ const settings = defineCollection({
       email: z.email(),
       instagram: optionalUrl,
       linkedin: optionalUrl,
-      weddingSiteUrl: optionalUrl, // optional external link, hidden when empty
+      tiktok: optionalUrl,
+      facebook: optionalUrl,
 
       // Inquiry form. Budget field is hidden while this list is empty (PRD FR-1).
       budgetRanges: z.preprocess(empty, z.array(z.string().trim().min(1)).default([])),

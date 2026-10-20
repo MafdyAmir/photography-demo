@@ -7,11 +7,18 @@ import { whatsappUrl } from '../lib/whatsapp';
 import { t } from '../i18n/en';
 
 const settings = await getSettings();
+const social = [
+  ['Instagram', settings.instagram],
+  ['TikTok', settings.tiktok],
+  ['Facebook', settings.facebook],
+  ['LinkedIn', settings.linkedin],
+].filter(([, href]) => href) as [string, string][];
 ---
 
 <BaseLayout
   title={`${t.contact.title} — Contact`}
-  description={`Start a product, brand or corporate photography project with ${settings.siteName} in ${settings.location.city}. Send an inquiry or message on WhatsApp.`}
+  description={`Book photo and video coverage for your event, exhibition or launch with ${settings.siteName} in ${settings.location.city}. Send an inquiry or message on WhatsApp.`}
+  hideDateBar
 >
   <section class="section contact">
     <div class="container layout">
@@ -19,16 +26,16 @@ const settings = await getSettings();
         <h1>{t.contact.title}</h1>
         <p class="lead">{t.contact.intro}</p>
 
-        <!-- Project Inquiry Form (PRD FR-1) — added in step (c). -->
+        <!-- Project Inquiry Form (PRD FR-1) -->
         <div id="inquiry">
           <InquiryForm />
         </div>
       </div>
 
       <aside class="aside stack" aria-labelledby="direct">
-        <h2 id="direct" class="eyebrow">{t.contact.other}</h2>
+        <h2 id="direct" class="sign-label">{t.contact.other}</h2>
         <a
-          class="btn btn--whatsapp"
+          class="btn"
           href={whatsappUrl(settings.whatsappNumber, settings.whatsappDefaultMessage)}
           target="_blank"
           rel="noopener"
@@ -40,7 +47,7 @@ const settings = await getSettings();
         </a>
         <dl class="details">
           <div>
-            <dt class="eyebrow">{t.common.email}</dt>
+            <dt class="sign-label">{t.common.email}</dt>
             <dd>
               <a href={`mailto:${settings.email}`} data-event="email_click" data-event-location="contact">
                 {settings.email}
@@ -48,26 +55,21 @@ const settings = await getSettings();
             </dd>
           </div>
           {
-            (settings.instagram || settings.linkedin) && (
+            social.length > 0 && (
               <div>
-                <dt class="eyebrow">Social</dt>
+                <dt class="sign-label">Social</dt>
                 <dd class="social">
-                  {settings.instagram && (
-                    <a href={settings.instagram} target="_blank" rel="noopener">
-                      Instagram
+                  {social.map(([name, href]) => (
+                    <a href={href} target="_blank" rel="noopener">
+                      {name}
                     </a>
-                  )}
-                  {settings.linkedin && (
-                    <a href={settings.linkedin} target="_blank" rel="noopener">
-                      LinkedIn
-                    </a>
-                  )}
+                  ))}
                 </dd>
               </div>
             )
           }
           <div>
-            <dt class="eyebrow">{t.contact.based}</dt>
+            <dt class="sign-label">{t.contact.based}</dt>
             <dd>{settings.location.areaServed ?? settings.location.city}</dd>
           </div>
         </dl>
@@ -87,11 +89,13 @@ const settings = await getSettings();
       gap: 5rem;
     }
   }
+  .contact {
+    padding-block-start: clamp(2rem, 1rem + 4vw, 4rem);
+  }
   .aside {
     align-self: start;
     padding: 1.75rem;
-    background: var(--surface);
-    border: 1px solid var(--line);
+    background: var(--navy);
     --stack: 1.25rem;
   }
   .aside .btn {

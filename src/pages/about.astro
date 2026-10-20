@@ -10,71 +10,79 @@ const paragraphs = settings.aboutText.split(/\n\s*\n/).map((p) => p.trim()).filt
 ---
 
 <BaseLayout
-  title={`${t.about.title} — Commercial Photographer in ${settings.location.city}`}
+  title={`${t.about.title} — Event Photo & Video Team in ${settings.location.city}`}
   description={settings.aboutShort.slice(0, 160)}
-  image={settings.photographerPhoto.src}
+  image={settings.aboutImage.src}
 >
-  <section class="section">
-    <div class="container about">
-      <div class="about__media">
-        <Photo image={settings.photographerPhoto} sizes="(min-width: 48em) 40vw, 100vw" priority />
-      </div>
-      <div class="stack" style="--stack: 1.5rem">
-        <p class="eyebrow">{t.about.title}</p>
-        <h1>{settings.siteName}</h1>
-        <div class="prose lead">
-          {paragraphs.map((p) => <p>{p}</p>)}
+  <div class="route">
+    <section class="section about">
+      <div class="container indent about__grid">
+        <div class="about__text">
+          <h1>{settings.siteName}</h1>
+          <div class="prose">
+            {paragraphs.map((p) => <p>{p}</p>)}
+          </div>
+        </div>
+        <div class="about__media frame">
+          <Photo image={settings.aboutImage} sizes="(min-width: 48em) 40vw, 100vw" priority />
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  {
-    settings.processSteps.length > 0 && (
-      <section class="section section--surface" aria-labelledby="process">
-        <div class="container">
-          <h2 id="process" class="section-head">
-            {t.about.process}
-          </h2>
-          <ol role="list" class="steps">
-            {settings.processSteps.map((s) => (
-              <li>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-    )
-  }
+    {
+      settings.processSteps.length > 0 && (
+        <section class="section process" aria-labelledby="process">
+          <div class="container indent">
+            <h2 id="process" class="section-head">
+              {t.about.process}
+            </h2>
+            <ol role="list" class="steps">
+              {settings.processSteps.map((s) => (
+                <li>
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )
+    }
+  </div>
 
   <CtaSection title={settings.finalCtaTitle} text={settings.finalCtaText} location="about" />
 </BaseLayout>
 
 <style>
+  .indent {
+    padding-inline-start: var(--indent);
+  }
   .about {
+    padding-block-start: clamp(2rem, 1rem + 4vw, 4rem);
+  }
+  .about__grid {
     display: grid;
     gap: 2.5rem;
     align-items: start;
   }
   @media (min-width: 48em) {
-    .about {
-      grid-template-columns: 2fr 3fr;
+    .about__grid {
+      grid-template-columns: 3fr 2fr;
       gap: 4rem;
     }
   }
-  .about__media {
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--surface-2);
-  }
-  .about__media :global(img) {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
+  .about__text h1 {
+    margin-block-end: 1.5rem;
   }
   .prose {
-    color: var(--ink);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    max-inline-size: 38rem;
+  }
+  .about__media {
+    aspect-ratio: 4 / 5;
+  }
+  .process {
+    background: var(--navy);
   }
 </style>

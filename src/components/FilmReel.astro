@@ -1,0 +1,146 @@
+---
+/**
+ * Films & reels as one carousel (Swiper): every film the same height, widths follow each film's shape.
+ * Swiper loads when the reel nears the screen; until then (or without JS) the row scrolls natively.
+ */
+import type { ImageMetadata } from 'astro';
+import Film from './Film.astro';
+import { t } from '../i18n/en';
+
+interface Props {
+  films: {
+    src: string;
+    title: string;
+    poster: ImageMetadata;
+    orientation: 'horizontal' | 'vertical';
+    code?: string;
+    client?: string;
+  }[];
+}
+
+const { films } = Astro.props;
+---
+
+<div class="reel" data-reel>
+  <div class="swiper reel__track">
+    <ul role="list" class="swiper-wrapper">
+      {
+        films.map((f) => (
+          <li class="swiper-slide reel__slide">
+            <Film {...f} sizes={f.orientation === 'vertical' ? '(min-width: 56em) 14rem, 40vw' : '(min-width: 56em) 43rem, 90vw'} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  {
+    films.length > 1 && (
+      <div class="reel__controls">
+        <button type="button" class="reel__btn" data-prev aria-label={t.video.prev}>
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square" />
+          </svg>
+        </button>
+        <button type="button" class="reel__btn" data-next aria-label={t.video.next}>
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square" />
+          </svg>
+        </button>
+        <span class="reel__count" aria-hidden="true">{t.video.count(films.length)}</span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .reel__track:not(.swiper-initialized) .swiper-wrapper {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+  }
+  .reel__slide {
+    inline-size: auto;
+    scroll-snap-align: start;
+  }
+  /* One height for every film; vertical reels come out narrow, wide films wide. */
+  .reel__slide :global(.film__play) {
+    block-size: clamp(13rem, 52vw, 24rem);
+    inline-size: auto;
+  }
+  /* Captions wrap to the film's width instead of widening the slide. */
+  .reel__slide :global(.film__caption) {
+    contain: inline-size;
+  }
+  .reel__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-start: 1.25rem;
+  }
+  .reel__btn {
+    display: grid;
+    place-items: center;
+    inline-size: 3rem;
+    block-size: 3rem;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .reel__btn:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--on-gold);
+  }
+  .reel__btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  [dir='rtl'] .reel__btn svg {
+    transform: scaleX(-1);
+  }
+  .reel__count {
+    margin-inline-start: 0.75rem;
+    font: 800 var(--step--1) / 1 var(--font-sign);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  const reels = document.querySelectorAll<HTMLElement>('[data-reel]');
+
+  const init = async (root: HTMLElement) => {
+    const { Swiper, Navigation, Keyboard, A11y } = await import('../scripts/swiper');
+    new Swiper(root.querySelector<HTMLElement>('.swiper')!, {
+      modules: [Navigation, Keyboard, A11y],
+      slidesPerView: 'auto',
+      spaceBetween: 16,
+      watchOverflow: true,
+      keyboard: { enabled: true, onlyInViewport: true },
+      navigation: { prevEl: root.querySelector<HTMLElement>('[data-prev]'), nextEl: root.querySelector<HTMLElement>('[data-next]') },
+      // Let the Video.js controls take drags (scrubbing) instead of the carousel.
+      noSwipingSelector: 'video-player',
+      breakpoints: { 768: { spaceBetween: 24 } },
+    });
+  };
+
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        init(e.target as HTMLElement);
+      }),
+    { rootMargin: '400px 0px' },
+  );
+  reels.forEach((r) => io.observe(r));
+</script>

@@ -1,0 +1,27 @@
+title: "Raafat Metal Melting Booth"
+category: exhibitions
+client: "Raafat Metal Melting"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/raafat-metal-melting-booth-03.jpg
+  alt: "Raafat booth with large blue industrial valves on display"
+gallery:
+  - src: ../../assets/uploads/raafat-metal-melting-booth-01.jpg
+    alt: "Business meeting at the Raafat booth"
+  - src: ../../assets/uploads/raafat-metal-melting-booth-02.jpg
+    alt: "Raafat booth corner with a blue valve assembly"
+  - src: ../../assets/uploads/raafat-metal-melting-booth-04.jpg
+    alt: "Close-up of a large blue coupling ring with steel bolts"
+  - src: ../../assets/uploads/raafat-metal-melting-booth-05.jpg
+    alt: "Blue valve beside the booth with visitors in the background"
+  - src: ../../assets/uploads/raafat-metal-melting-booth-06.jpg
+    alt: "Wide view of the Raafat stand with valves and seating"
+summary: "Raafat Metal Melting's stand at an industrial exhibition: oversized valves on display and the meetings around them."
+coverage:
+  - "Booth photography"
+featured: false
+published: true
+order: 15
+date: 2025-07-13
+seo:
+  description: "Raafat Metal Melting's stand at an industrial exhibition: oversized valves on display and the meetings around them."

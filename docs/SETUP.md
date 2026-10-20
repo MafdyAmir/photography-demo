@@ -131,19 +131,16 @@ in the email, so you can see where each lead came from even without GA4.
 
 ## Before launch — content checklist
 
-Everything currently on the site is **placeholder**. The site must not launch with it (PRD §10).
+The site now carries Shotix's real work (16 projects imported from their Facebook page, Oct 2026).
+Check these with the client before launch:
 
-- [ ] Site Settings: real studio name, WhatsApp number, email, Instagram, LinkedIn, About text, photographer photo.
-- [ ] At least **3 real projects** (product, brand, corporate) with 6–12 photos each and a real brief.
-- [ ] **All photos currently on the site are temporary stock photos** (credits in `IMAGE-CREDITS.md`) and the 4 demo
-      projects are labelled "Concept Project" / "self-initiated" — which is **not true** for stock images. Replace them
-      with the photographer's own work before anyone outside the team sees the site as real. The portrait is a generated placeholder.
-- [ ] Delete the 4 placeholder projects in the CMS (and their images in **Media**: all files named `amber-…`,
-      `leather-…`, `clay-…`, `studio-team-…`, `service-…`, `home-hero-…`, `photographer-portrait`, `og-default`).
-- [ ] Replace the 3 service hero images and the default share image.
-- [ ] Review the drafted service texts and "Why work with me" points with the photographer.
-- [ ] Check the target keywords match reality (e.g. "Product Photographer in Cairo").
-- [ ] Client names/logos only with written permission. Testimonials only real ones.
+- [ ] Confirm the WhatsApp number (201201706333) and email. Instagram, TikTok, Facebook and LinkedIn are set
+      from their Linktree (X and Threads left out on purpose; empty links are hidden).
+- [ ] Review the drafted service texts, project summaries and "Why Shotix" points with the team.
+- [ ] Confirm the event/client names on each project (they were read from the photos and captions).
+- [ ] Ask for an SVG version of the logo (the site uses the supplied PNGs).
+- [ ] Videos live in `public/videos/` (~74 MB, compressed). Keep new uploads under ~15 MB each.
+- [ ] Testimonials only real ones.
 - [ ] Send a test inquiry from a phone and confirm the email arrives.
 - [ ] Test the WhatsApp button on Android and iPhone.
 

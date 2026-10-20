@@ -1,0 +1,30 @@
+title: "EGYPS — WEG Booth"
+category: exhibitions
+client: "WEG"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/egyps-weg-booth-01.jpg
+  alt: "WEG team lined up in front of their illuminated exhibition booth"
+gallery:
+  - src: ../../assets/uploads/egyps-weg-booth-02.jpg
+    alt: "Two WEG representatives in suits smiling in front of the booth's blue signage"
+  - src: ../../assets/uploads/egyps-weg-booth-03.jpg
+    alt: "WEG executive with arms crossed in front of the booth"
+  - src: ../../assets/uploads/egyps-weg-booth-04.jpg
+    alt: "Wide view of the WEG booth with screens and product displays in the exhibition hall"
+videos:
+  - src: /videos/1634998480979666.mp4
+    title: "EGYPS — WEG Booth — highlight film"
+    orientation: horizontal
+    poster: ../../assets/uploads/egyps-weg-booth-video-1.jpg
+summary: "Coverage of WEG's booth at EGYPS, the energy exhibition in Cairo: the team, the stand, and the people who came to meet them."
+coverage:
+  - "Booth photography"
+  - "Team portraits"
+  - "Highlight film"
+featured: true
+published: true
+order: 2
+date: 2026-04-04
+seo:
+  description: "Coverage of WEG's booth at EGYPS, the energy exhibition in Cairo: the team, the stand, and the people who came to meet them."

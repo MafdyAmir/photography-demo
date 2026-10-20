@@ -1,0 +1,34 @@
+title: "Al Baset Store Opening"
+category: launches
+client: "Al Baset Trade & Distribution"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/al-baset-store-opening-05.jpg
+  alt: "Fully stocked store aisle of personal-care products"
+gallery:
+  - src: ../../assets/uploads/al-baset-store-opening-02.jpg
+    alt: "Cosmetics brand displays along the store wall"
+  - src: ../../assets/uploads/al-baset-store-opening-03.jpg
+    alt: "Rows of shampoo bottles on a lit shelf"
+  - src: ../../assets/uploads/al-baset-store-opening-04.jpg
+    alt: "Hair-care wall display with brand panels"
+videos:
+  - src: /videos/1965666934071248.mp4
+    title: "Al Baset Store Opening — reel 1"
+    orientation: vertical
+    poster: ../../assets/uploads/al-baset-store-opening-video-1.jpg
+  - src: /videos/2139384563202818.mp4
+    title: "Al Baset Store Opening — reel 2"
+    orientation: vertical
+    poster: ../../assets/uploads/al-baset-store-opening-video-2.jpg
+summary: "The opening of Al Baset Trade & Distribution's store: fully stocked aisles and brand displays photographed before the doors opened."
+coverage:
+  - "Opening photography"
+  - "Interiors"
+  - "Highlight reels"
+featured: false
+published: true
+order: 13
+date: 2025-07-25
+seo:
+  description: "The opening of Al Baset Trade & Distribution's store: fully stocked aisles and brand displays photographed before the doors opened."

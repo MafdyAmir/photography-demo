@@ -1,31 +1,39 @@
-/* Design tokens. Logical properties throughout so an RTL version only needs dir="rtl". */
+/* Shotix design tokens. The site is an exhibition venue: near-black hall, warm white type,
+   logo gold as the only marking colour (hall plates, booth codes, the route line, the action).
+   Logical properties throughout so an RTL version only needs dir="rtl". */
 :root {
-  --bg: #f6f4f0;
-  --surface: #ffffff;
-  --surface-2: #ece8e1;
-  --ink: #1a1917;
-  --muted: #5d5850;
-  --line: #ddd7cd;
-  --accent: #8a4b22; /* concept badge, small highlights */
-  --focus: #1f5fbf;
-  --whatsapp: #18793f; /* WhatsApp green, darkened for 4.5:1 contrast with white text */
+  color-scheme: dark;
+  --bg: #0a0a0b;
+  --surface: #131417;
+  --navy: #1b222b; /* the logo's navy letters, for secondary surfaces */
+  --ink: #f4f2ee;
+  --muted: #aaa59c;
+  --line: #2c2d31;
+  --gold: #f2ae1f;
+  --gold-hover: #ffc24a;
+  --on-gold: #0a0a0b;
+  --danger: #ff8a7a;
 
   --font-body: var(--font-sans), system-ui, sans-serif;
-  --font-display: var(--font-serif), Georgia, serif;
+  --font-sign: var(--font-display), 'Arial Narrow', sans-serif;
 
-  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
-  --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
-  --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.4rem);
-  --step-2: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
-  --step-3: clamp(2rem, 1.6rem + 2vw, 3.2rem);
-  --step-4: clamp(2.5rem, 1.8rem + 3.4vw, 4.6rem);
+  --step--1: clamp(0.84rem, 0.82rem + 0.1vw, 0.9rem);
+  --step-0: clamp(1.02rem, 0.98rem + 0.2vw, 1.12rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
+  --step-2: clamp(1.6rem, 1.35rem + 1.1vw, 2.3rem);
+  --step-3: clamp(2.2rem, 1.7rem + 2.4vw, 3.75rem);
+  --step-4: clamp(3rem, 2rem + 5vw, 6rem);
 
   --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
-  --max: 82rem;
+  --max: 84rem;
   --narrow: 44rem;
-  --radius: 4px;
-  --section: clamp(4rem, 3rem + 5vw, 8rem);
+  --section: clamp(4rem, 3rem + 4vw, 7rem); /* the "corridor" between halls */
   --header-h: 4rem;
+  /* The gold route line runs down the inline-start edge of route sections. */
+  --route-x: var(--gutter);
+  --route-w: 3px;
+  /* Content beside the route line starts here. */
+  --indent: calc(var(--gutter) + 1.25rem);
 }
 
 *,
@@ -37,6 +45,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-block-start: calc(var(--header-h) + 1rem);
+  scrollbar-color: #4a4b50 var(--bg);
+  accent-color: var(--gold);
+  caret-color: var(--gold);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -51,21 +62,27 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--step-0);
-  line-height: 1.6;
+  line-height: 1.55;
   overflow-x: clip;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background: var(--gold);
+  color: var(--on-gold);
+}
+
 img,
 picture,
-svg {
+svg,
+video {
   display: block;
   max-inline-size: 100%;
   block-size: auto;
 }
 
-/* Lets images fill fixed aspect-ratio frames (cards, heroes) via object-fit. */
+/* Lets images fill fixed aspect-ratio frames via object-fit. */
 picture {
   block-size: 100%;
 }
@@ -73,16 +90,18 @@ picture {
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  font-family: var(--font-sign);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
   margin: 0;
   text-wrap: balance;
 }
 
 h1 {
   font-size: var(--step-4);
+  font-weight: 900;
 }
 h2 {
   font-size: var(--step-3);
@@ -98,12 +117,16 @@ p {
 
 a {
   color: inherit;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.22em;
   text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+a:hover {
+  text-decoration-color: var(--gold);
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
 
@@ -114,7 +137,7 @@ ol[role='list'] {
   padding: 0;
 }
 
-/* Layout helpers ------------------------------------------------------------ */
+/* Layout ------------------------------------------------------------------- */
 
 .container {
   inline-size: 100%;
@@ -132,33 +155,35 @@ ol[role='list'] {
 }
 
 .section--tight {
-  padding-block: calc(var(--section) * 0.6);
+  padding-block: calc(var(--section) * 0.55);
 }
 
-.section--surface {
-  background: var(--surface);
+.section--navy {
+  background: var(--navy);
 }
 
 .stack > * + * {
   margin-block-start: var(--stack, 1rem);
 }
 
-.eyebrow {
-  font-family: var(--font-body);
-  font-size: var(--step--1);
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .lead {
   font-size: var(--step-1);
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--muted);
+  max-inline-size: 38rem;
 }
 
 .muted {
+  color: var(--muted);
+}
+
+/* Small signage caption: a label set in the sign face, never above a heading. */
+.sign-label {
+  font-family: var(--font-sign);
+  font-weight: 700;
+  font-size: var(--step-0);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
@@ -189,11 +214,102 @@ ol[role='list'] {
   inset-block-start: -10rem;
   z-index: 100;
   padding: 0.75rem 1rem;
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--gold);
+  color: var(--on-gold);
 }
 .skip-link:focus {
   inset-block-start: 1rem;
+}
+
+/* Hall plate: the one inverted gold block per screen. ----------------------- */
+
+.plate {
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  color: var(--on-gold);
+  font-family: var(--font-sign);
+  font-weight: 900;
+  line-height: 0.8;
+  text-transform: uppercase;
+}
+
+/* Booth tag: code in gold, label in white, on the venue black. */
+.booth-tag {
+  display: inline-flex;
+  align-items: stretch;
+  font-family: var(--font-sign);
+  font-weight: 800;
+  font-size: var(--step-0);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  background: var(--bg);
+  color: var(--ink);
+}
+.booth-tag > b {
+  display: grid;
+  place-items: center;
+  padding: 0.5em 0.6em;
+  background: var(--gold);
+  color: var(--on-gold);
+  font-weight: 900;
+}
+.booth-tag > span {
+  display: grid;
+  align-items: center;
+  padding: 0.5em 0.75em;
+}
+
+/* Route line (signature): one unbroken gold line from the hall sign to the inquiry.
+   Draws progressively with scroll where supported; static and complete otherwise. */
+.route {
+  position: relative;
+}
+.route::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  /* Measured from the centred container, so it meets the hall plate at any width. */
+  inset-inline-start: calc(max(0px, (100% - var(--max)) / 2) + var(--route-x));
+  inline-size: var(--route-w);
+  background: var(--gold);
+  transform-origin: top;
+  z-index: 1;
+  pointer-events: none;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .route::before {
+      animation: route-draw linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 85%;
+    }
+    /* Booth codes light up as the line reaches them. */
+    .route .booth-tag > b {
+      animation: booth-lit linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 90%;
+    }
+  }
+}
+@keyframes route-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes booth-lit {
+  from {
+    background: var(--line);
+    color: var(--muted);
+  }
+  to {
+    background: var(--gold);
+    color: var(--on-gold);
+  }
 }
 
 /* Buttons ------------------------------------------------------------------- */
@@ -202,40 +318,39 @@ ol[role='list'] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5em;
+  gap: 0.55em;
   min-block-size: 3rem;
-  padding: 0.75em 1.4em;
-  border: 1px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--ink);
-  color: var(--bg);
-  font: 500 var(--step-0) / 1.2 var(--font-body);
+  padding: 0.7em 1.35em;
+  border: 2px solid var(--gold);
+  background: var(--gold);
+  color: var(--on-gold);
+  font: 800 var(--step-0) / 1 var(--font-sign);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
   transition:
     background-color 0.2s,
+    border-color 0.2s,
     color 0.2s;
 }
 .btn:hover {
-  background: #3a3733;
+  background: var(--gold-hover);
+  border-color: var(--gold-hover);
 }
-
+.btn:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
 .btn--ghost {
   background: transparent;
+  border-color: var(--ink);
   color: var(--ink);
 }
 .btn--ghost:hover {
   background: var(--ink);
+  border-color: var(--ink);
   color: var(--bg);
-}
-
-.btn--whatsapp {
-  background: var(--whatsapp);
-  border-color: var(--whatsapp);
-  color: #fff;
-}
-.btn--whatsapp:hover {
-  background: #12602f;
 }
 
 .btn-row {
@@ -245,29 +360,48 @@ ol[role='list'] {
 }
 
 .link-arrow {
-  font-weight: 500;
+  font-family: var(--font-sign);
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   text-decoration: none;
-  border-block-end: 1px solid currentColor;
-  padding-block-end: 0.15em;
+  color: var(--gold);
+  white-space: nowrap;
 }
 .link-arrow::after {
-  content: ' →';
+  content: '';
+  display: inline-block;
+  inline-size: 0.85em;
+  block-size: 0.85em;
+  margin-inline-start: 0.4em;
+  vertical-align: -0.05em;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1 8h12M8.5 3.5 13 8l-4.5 4.5' fill='none' stroke='%23000' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: translate 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-arrow:hover::after {
+  translate: 0.2em 0;
 }
 [dir='rtl'] .link-arrow::after {
-  content: ' ←';
+  scale: -1 1;
+}
+[dir='rtl'] .link-arrow:hover::after {
+  translate: -0.2em 0;
+}
+.link-arrow:hover {
+  color: var(--gold-hover);
 }
 
 /* Shared bits --------------------------------------------------------------- */
 
 .badge-concept {
   display: inline-block;
-  padding: 0.3em 0.7em;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  color: var(--accent);
-  font-size: var(--step--1);
-  font-weight: 500;
-  line-height: 1.2;
+  padding: 0.35em 0.7em;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font: 700 var(--step--1) / 1.1 var(--font-sign);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -277,12 +411,13 @@ ol[role='list'] {
   gap: 0.5rem;
 }
 .tags li {
-  padding: 0.35em 0.8em;
-  background: var(--surface-2);
-  border-radius: 999px;
+  padding: 0.4em 0.75em;
+  border: 1px solid var(--line);
   font-size: var(--step--1);
+  color: var(--ink);
 }
 
+/* Process steps: the order is the information, so the numbers stay. */
 .steps {
   display: grid;
   gap: 2rem;
@@ -299,17 +434,14 @@ ol[role='list'] {
   padding-block-start: 1.25rem;
 }
 .steps li::before {
-  content: counter(step, decimal-leading-zero);
+  content: counter(step);
   display: block;
-  margin-block-end: 0.75rem;
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  color: var(--accent);
+  margin-block-end: 0.6rem;
+  font: 900 var(--step-3) / 0.8 var(--font-sign);
+  color: var(--gold);
 }
 .steps h3 {
-  font-family: var(--font-body);
-  font-size: var(--step-0);
-  font-weight: 600;
+  font-size: var(--step-1);
   margin-block-end: 0.4rem;
 }
 .steps p {
@@ -319,3 +451,22 @@ ol[role='list'] {
 .prose p + p {
   margin-block-start: 1.1em;
 }
+
+/* Frames that crop photos to a shape. */
+.frame {
+  overflow: hidden;
+  background: var(--surface);
+}
+.frame img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/* Room for the sticky "Check your date" bar on phones. */
+@media (max-width: 55.99em) {
+  body.has-date-bar {
+    padding-block-end: 4.5rem;
+  }
+}
+

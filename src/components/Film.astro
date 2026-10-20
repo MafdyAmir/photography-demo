@@ -1,0 +1,180 @@
+---
+/**
+ * Self-hosted video that downloads nothing until pressed: a poster image with a play control.
+ * With JS the poster swaps for an inline <video>; without JS the link opens the MP4 itself.
+ */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { url } from '../lib/url';
+import { t } from '../i18n/en';
+
+interface Props {
+  src: string;
+  title: string;
+  poster: ImageMetadata;
+  orientation?: 'horizontal' | 'vertical';
+  sizes?: string;
+  /** Booth code + client, so a film traces back to its project. */
+  code?: string;
+  client?: string;
+}
+
+const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56em) 50vw, 100vw', code, client } = Astro.props;
+---
+
+<figure class:list={['film', `film--${orientation}`]}>
+  <a class="film__play" href={url(src)} data-film data-title={title} aria-label={`${t.video.play}: ${title}`}>
+    <Image
+      src={poster}
+      alt=""
+      widths={[480, 800, 1200].filter((w) => w < poster.width).concat(Math.min(poster.width, 1600))}
+      sizes={sizes}
+      format="webp"
+      quality={60}
+      class="film__poster"
+    />
+    <span class="film__button" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></svg>
+    </span>
+  </a>
+  <figcaption class="film__caption">
+    {
+      code && (
+        <span class="booth-tag film__tag">
+          <b>{code}</b>
+          {client && <span>{client}</span>}
+        </span>
+      )
+    }
+    <span>{title}</span>
+  </figcaption>
+</figure>
+
+<style>
+  .film {
+    margin: 0;
+  }
+  .film__play {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .film--vertical .film__play {
+    aspect-ratio: 9 / 16;
+  }
+  .film__play :global(.film__poster),
+  .film__play :global(video) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .film__play :global(video) {
+    background: #000;
+  }
+  /* Video.js skin in the Shotix palette: gold accent, square corners, site font. */
+  .film__play :global(video-skin) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    --media-accent-color: var(--gold);
+    --media-accent-text-color: var(--on-gold);
+    --media-border-radius: 0;
+    --media-border-color: transparent;
+    --media-font-family: var(--font-sans);
+    --media-object-fit: contain;
+  }
+  .film__play :global(video-player) {
+    display: block;
+    block-size: 100%;
+  }
+  .film__play.is-loading .film__button {
+    animation: film-wait 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes film-wait {
+    to {
+      opacity: 0.45;
+    }
+  }
+  .film__button {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    display: grid;
+    place-items: center;
+    inline-size: 4rem;
+    block-size: 4rem;
+    background: var(--gold);
+    color: var(--on-gold);
+    transition: inline-size 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .film__play:hover .film__button,
+  .film__play:focus-visible .film__button {
+    inline-size: 5.5rem;
+  }
+  [dir='rtl'] .film__button svg {
+    transform: scaleX(-1);
+  }
+  /* Tag on one line (truncated like project cards), title under it: the same on every film. */
+  .film__caption {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: 0.5rem;
+    margin-block-start: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .film {
+    min-inline-size: 0;
+  }
+  .film__tag {
+    max-inline-size: 100%;
+    font-size: var(--step--1);
+  }
+  .film__tag > span {
+    min-inline-size: 0;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  // Video.js 10 (@videojs/html) loads on the first press only, so pages with films ship no player code up front.
+  const loadPlayer = () => Promise.all([import('@videojs/html/video/player'), import('@videojs/html/video/skin')]);
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-film]').forEach((link) => {
+    link.addEventListener('click', async (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      link.classList.add('is-loading');
+      try {
+        await loadPlayer();
+      } catch {
+        location.href = link.href; // player failed to load: open the file itself
+        return;
+      }
+      const player = document.createElement('video-player');
+      const skin = document.createElement('video-skin');
+      const video = document.createElement('video');
+      video.src = link.href;
+      video.playsInline = true;
+      video.setAttribute('aria-label', link.dataset.title ?? '');
+      skin.append(video);
+      player.append(skin);
+      const holder = document.createElement('div');
+      // Keep the class and Astro's scoped-style attribute so the frame keeps its shape.
+      for (const { name, value } of link.attributes) {
+        if (name === 'class' || name.startsWith('data-astro-cid')) holder.setAttribute(name, value);
+      }
+      holder.classList.remove('is-loading');
+      holder.classList.add('is-playing');
+      holder.append(player);
+      link.replaceWith(holder);
+      video.play().catch(() => {});
+    });
+  });
+</script>

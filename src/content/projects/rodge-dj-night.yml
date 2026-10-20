@@ -1,0 +1,33 @@
+title: "Rodge DJ Night"
+category: events
+client: "Rodge"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/rodge-dj-night-08.jpg
+  alt: "Crowd dancing with hands up under the venue's lattice towers"
+gallery:
+  - src: ../../assets/uploads/rodge-dj-night-01.jpg
+    alt: "DJ in a red cap at the decks under purple light"
+  - src: ../../assets/uploads/rodge-dj-night-02.jpg
+    alt: "DJ pointing to the crowd from behind the decks"
+  - src: ../../assets/uploads/rodge-dj-night-03.jpg
+    alt: "DJ crouching on stage facing the audience"
+  - src: ../../assets/uploads/rodge-dj-night-04.jpg
+    alt: "Crowd in front of a screen showing RODGE"
+  - src: ../../assets/uploads/rodge-dj-night-05.jpg
+    alt: "Guests cheering at their tables"
+  - src: ../../assets/uploads/rodge-dj-night-06.jpg
+    alt: "Guitarist playing on stage"
+  - src: ../../assets/uploads/rodge-dj-night-07.jpg
+    alt: "DJ singing into a microphone under purple light"
+  - src: ../../assets/uploads/rodge-dj-night-09.jpg
+    alt: "Singer and band performing in front of a mountain graphic"
+summary: "A night with DJ Rodge and a live band: decks, lights and a crowd that didn't sit down."
+coverage:
+  - "Nightlife photography"
+featured: false
+published: true
+order: 9
+date: 2025-09-15
+seo:
+  description: "A night with DJ Rodge and a live band: decks, lights and a crowd that didn't sit down."

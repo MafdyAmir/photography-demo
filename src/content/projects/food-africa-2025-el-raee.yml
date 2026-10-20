@@ -1,0 +1,46 @@
+title: "Food Africa 2025 — El Raee"
+category: exhibitions
+client: "El Raee Halwa & Tahina"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/food-africa-2025-el-raee-08.jpg
+  alt: "Two performers with golden wings at the El Raee booth display"
+gallery:
+  - src: ../../assets/uploads/food-africa-2025-el-raee-01.jpg
+    alt: "Performer in pharaonic costume presenting halva pyramids"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-02.jpg
+    alt: "Buyers in a meeting at the El Raee booth"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-03.jpg
+    alt: "Visitors browsing El Raee products on the shelves"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-04.jpg
+    alt: "Booth host greeting a visitor beside costumed performers"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-05.jpg
+    alt: "Wide view of the El Raee booth entrance with its logo"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-06.jpg
+    alt: "Performer leaning in to a halva pyramid"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-07.jpg
+    alt: "Chocolate tahini fountain at the booth"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-09.jpg
+    alt: "El Raee booth exterior in the exhibition hall"
+  - src: ../../assets/uploads/food-africa-2025-el-raee-10.jpg
+    alt: "Shelves of El Raee halva tubs in pyramid-shaped packs"
+videos:
+  - src: /videos/1409142464095548.mp4
+    title: "Food Africa 2025 — El Raee — highlight film 1"
+    orientation: horizontal
+    poster: ../../assets/uploads/food-africa-2025-el-raee-video-1.jpg
+  - src: /videos/3371266573025924.mp4
+    title: "Food Africa 2025 — El Raee — highlight film 2"
+    orientation: horizontal
+    poster: ../../assets/uploads/food-africa-2025-el-raee-video-2.jpg
+summary: "El Raee's booth at Food Africa 2025: a pharaonic-themed stand, performers, tastings and buyers meeting the team."
+coverage:
+  - "Booth photography"
+  - "Visitor interaction"
+  - "Highlight films"
+featured: true
+published: true
+order: 6
+date: 2025-12-13
+seo:
+  description: "El Raee's booth at Food Africa 2025: a pharaonic-themed stand, performers, tastings and buyers meeting the team."

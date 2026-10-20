@@ -1,0 +1,31 @@
+title: "Ruby Live at Village West"
+category: events
+client: "Village West"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/ruby-live-concert-village-west-03.jpg
+  alt: "Close-up of Ruby singing into the microphone in front of red neon"
+gallery:
+  - src: ../../assets/uploads/ruby-live-concert-village-west-01.jpg
+    alt: "Ruby in a red gown singing to a crowd holding up phones"
+  - src: ../../assets/uploads/ruby-live-concert-village-west-02.jpg
+    alt: "Ruby raising a hand mid-song under blue stage lights"
+  - src: ../../assets/uploads/ruby-live-concert-village-west-04.jpg
+    alt: "Ruby smiling and gesturing to the crowd during the concert"
+  - src: ../../assets/uploads/ruby-live-concert-village-west-05.jpg
+    alt: "Ruby with an arm raised high against red and blue stage lights"
+videos:
+  - src: /videos/862868323160896.mp4
+    title: "Ruby Live at Village West — reel"
+    orientation: vertical
+    poster: ../../assets/uploads/ruby-live-concert-village-west-video-1.jpg
+summary: "Ruby on stage at Village West: a full night of live music, stage lights and a packed crowd."
+coverage:
+  - "Concert photography"
+  - "Highlight reel"
+featured: true
+published: true
+order: 4
+date: 2025-12-28
+seo:
+  description: "Ruby on stage at Village West: a full night of live music, stage lights and a packed crowd."

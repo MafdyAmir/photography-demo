@@ -5,10 +5,30 @@ export type Category = (typeof CATEGORIES)[number];
 export type Project = CollectionEntry<'projects'>;
 
 export const CATEGORY_LABELS: Record<Category, string> = {
-  product: 'Product',
-  brand: 'Brand',
-  corporate: 'Corporate',
+  events: 'Events',
+  exhibitions: 'Exhibitions',
+  launches: 'Launches & Openings',
+  social: 'Social & Brand Content',
 };
+
+/** Each service is a "hall" in the site's venue metaphor; its letter prefixes every booth code. */
+export const HALLS: Record<Category, string> = {
+  events: 'A',
+  exhibitions: 'B',
+  launches: 'C',
+  social: 'D',
+};
+
+/** Booth code per project id, e.g. "B02": hall letter + position within that hall. Display label only. */
+export async function getBoothCodes(): Promise<Map<string, string>> {
+  const codes = new Map<string, string>();
+  const count: Partial<Record<Category, number>> = {};
+  for (const p of await getPublishedProjects()) {
+    const n = (count[p.data.category] = (count[p.data.category] ?? 0) + 1);
+    codes.set(p.id, `${HALLS[p.data.category]}${String(n).padStart(2, '0')}`);
+  }
+  return codes;
+}
 
 /** /work/[category] and /work/[slug] share one URL segment, so project slugs can't be category names. */
 function assertNoSlugCollisions(projects: Project[]) {

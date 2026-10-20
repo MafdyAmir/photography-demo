@@ -3,10 +3,10 @@ import { url } from '../lib/url';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Photo from './Photo.astro';
 import Gallery from './Gallery.astro';
+import FilmReel from './FilmReel.astro';
 import ProjectCard from './ProjectCard.astro';
 import CtaSection from './CtaSection.astro';
-import { CATEGORY_LABELS, getRelatedProjects, type Project } from '../lib/content';
-import { whatsappMessages } from '../lib/whatsapp';
+import { CATEGORY_LABELS, getBoothCodes, getRelatedProjects, getServices, type Project } from '../lib/content';
 import { t } from '../i18n/en';
 
 interface Props {
@@ -16,18 +16,10 @@ interface Props {
 const { project } = Astro.props;
 const d = project.data;
 const related = await getRelatedProjects(project, 2);
-const waMessage = whatsappMessages.project(d.title);
-
-const description =
-  d.seo.description ??
-  `${d.isConcept ? 'Concept ' : ''}${CATEGORY_LABELS[d.category].toLowerCase()} photography project: ${d.goal}`.slice(0, 160);
-
-const brief = [
-  { label: t.project.goal, text: d.goal },
-  { label: t.project.idea, text: d.idea },
-  { label: t.project.usage, text: d.usage },
-  { label: t.project.role, text: d.role },
-];
+const codes = await getBoothCodes();
+const code = codes.get(project.id);
+const service = (await getServices()).find((s) => s.data.category === d.category);
+const description = d.seo.description ?? d.summary.slice(0, 160);
 ---
 
 <BaseLayout
@@ -35,82 +27,91 @@ const brief = [
   description={description}
   image={d.coverImage.src}
   ogType="article"
-  whatsappMessage={waMessage}
+  service={service?.data.title}
 >
-  <article>
+  <article class="route">
     <header class="container head">
-      <nav aria-label="Breadcrumb" class="crumbs eyebrow">
-        <a href={url('/work')}>{t.nav.work}</a> / <a href={url(`/work/${d.category}`)}>{CATEGORY_LABELS[d.category]}</a>
-      </nav>
-      <h1>{d.title}</h1>
-      <div class="meta">
+      <p class="plate head__code" aria-label={`${t.common.booth} ${code}`}>{code}</p>
+      <div class="head__text">
+        <nav aria-label="Breadcrumb" class="crumbs">
+          <a href={url('/work')}>{t.nav.work}</a>
+          <span aria-hidden="true">/</span>
+          <a href={url(service ? `/services/${service.id}` : `/work/${d.category}`)}>{CATEGORY_LABELS[d.category]}</a>
+        </nav>
+        <h1>{d.title}</h1>
+        {d.client && !d.isConcept && <p class="client">{d.client}</p>}
         {d.isConcept && <span class="badge-concept">{t.common.conceptBadge}</span>}
-        {d.client && !d.isConcept && (
-          <p>
-            <span class="muted">{t.project.client}:</span> {d.client}
-          </p>
-        )}
       </div>
-      {d.isConcept && <p class="muted concept-note">{t.common.conceptNote}</p>}
     </header>
 
-    <div class="container cover">
-      <Photo image={d.coverImage} sizes="(min-width: 82rem) 82rem, 100vw" priority />
+    <div class="cover frame">
+      <Photo image={d.coverImage} sizes="100vw" priority />
     </div>
 
-    <section class="container section brief" aria-labelledby="brief">
-      <h2 id="brief">{t.project.brief}</h2>
-      <div>
-        <dl class="brief__list">
-          {
-            brief.map((b) => (
-              <div>
-                <dt class="eyebrow">{b.label}</dt>
-                <dd>{b.text}</dd>
-              </div>
-            ))
-          }
-        </dl>
-        {
-          d.services.length > 0 && (
-            <div class="services">
-              <h3 class="eyebrow">{t.project.services}</h3>
-              <ul role="list" class="tags">
-                {d.services.map((s) => (
-                  <li>{s}</li>
-                ))}
-              </ul>
-            </div>
-          )
-        }
-      </div>
+    <section class="container indent brief" aria-label={t.project.covered}>
+      <p class="brief__summary">{d.summary}</p>
+      {d.isConcept && <p class="muted">{t.common.conceptNote}</p>}
+      {
+        d.coverage.length > 0 && (
+          <div>
+            <h2 class="sign-label">{t.project.covered}</h2>
+            <ul role="list" class="tags">
+              {d.coverage.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
     </section>
 
-    <section class="container" aria-labelledby="gallery">
-      <h2 id="gallery" class="visually-hidden">{t.project.gallery}</h2>
-      <Gallery images={d.gallery} />
-    </section>
+    {
+      d.videos.length > 0 && (
+        <section class="container indent films" aria-labelledby="films">
+          <h2 id="films" class="section-head">
+            {t.video.films}
+          </h2>
+          <FilmReel films={d.videos.map((v) => ({ ...v, code }))} />
+        </section>
+      )
+    }
+
+    {
+      d.gallery.length > 0 && (
+        <section class="container indent gallery" aria-labelledby="gallery">
+          <h2 id="gallery" class="visually-hidden">
+            {t.project.gallery}
+          </h2>
+          <Gallery images={d.gallery} />
+        </section>
+      )
+    }
   </article>
 
-  <div class="section--tight"></div>
-  <CtaSection title={t.project.ctaTitle} text={t.project.ctaText} whatsappMessage={waMessage} service={d.category} location="project" />
+  <CtaSection
+    title={t.project.ctaTitle}
+    text={t.project.ctaText}
+    service={d.category}
+    serviceName={service?.data.title}
+    location="project"
+  />
 
   {
     related.length > 0 && (
-      <section class="section" aria-labelledby="related">
-        <div class="container">
+      <section class="section related" aria-labelledby="related">
+        <div class="container indent">
           <div class="section-head">
             <h2 id="related">
-              {t.project.related} {CATEGORY_LABELS[d.category].toLowerCase()} work
+              {t.project.related} {CATEGORY_LABELS[d.category]}
             </h2>
             <a class="link-arrow" href={url(`/work/${d.category}`)}>
               {t.common.seeAll}
             </a>
           </div>
-          <ul role="list" class="related">
+          <ul role="list" class="related__grid">
             {related.map((p) => (
               <li>
-                <ProjectCard project={p} sizes="(min-width: 48em) 50vw, 100vw" />
+                <ProjectCard project={p} code={codes.get(p.id)} sizes="(min-width: 48em) 50vw, 100vw" />
               </li>
             ))}
           </ul>
@@ -121,77 +122,97 @@ const brief = [
 </BaseLayout>
 
 <style>
+  .indent {
+    padding-inline-start: var(--indent);
+  }
   .head {
-    padding-block: clamp(2rem, 1rem + 4vw, 4.5rem) 2rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: end;
+    padding-block: clamp(1.5rem, 1rem + 3vw, 3.5rem) 1.5rem;
+  }
+  .head__code {
+    align-self: stretch;
+    min-inline-size: 4.5rem;
+    padding: 0.5rem 0.6rem;
+    place-items: end start;
+    font-size: clamp(2.2rem, 1.6rem + 3vw, 4.5rem);
   }
   .crumbs {
-    margin-block-end: 1.25rem;
+    display: flex;
+    gap: 0.5rem;
+    margin-block-end: 0.75rem;
+    font: 700 var(--step--1) / 1 var(--font-sign);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
   .crumbs a {
     text-decoration: none;
   }
   .crumbs a:hover {
-    text-decoration: underline;
+    color: var(--gold);
   }
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    margin-block-start: 1.25rem;
+  .head h1 {
+    font-size: clamp(2.4rem, 1.4rem + 4.5vw, 5.5rem);
   }
-  .meta:empty {
-    display: none;
+  .client {
+    margin-block-start: 0.6rem;
+    font: 700 var(--step-1) / 1.1 var(--font-sign);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
   }
-  .concept-note {
-    margin-block-start: 0.75rem;
-    font-size: var(--step--1);
-    max-inline-size: 40rem;
-  }
-  .cover :global(img) {
+  /* Always full width; the height is capped instead (aspect-ratio + max-height would shrink the width). */
+  .cover {
     inline-size: 100%;
-    max-block-size: 85vh;
-    object-fit: cover;
+    block-size: min(125vw, 88svh);
+  }
+  /* Wide crops of portrait frames keep the head: bias toward the upper third. */
+  .cover :global(img) {
+    object-position: 50% 25%;
+  }
+  @media (min-width: 40em) {
+    .cover {
+      block-size: min(66.667vw, 88svh);
+    }
   }
   .brief {
     display: grid;
-    gap: 2rem;
+    gap: 1.75rem;
+    padding-block: clamp(2.5rem, 2rem + 3vw, 4.5rem);
   }
   @media (min-width: 56em) {
     .brief {
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: 1.6fr 1fr;
       gap: 4rem;
+      align-items: start;
     }
   }
-  .brief__list {
-    display: grid;
-    gap: 1.75rem;
-    margin: 0;
+  .brief__summary {
+    font-size: var(--step-2);
+    line-height: 1.25;
+    max-inline-size: 40rem;
   }
-  @media (min-width: 40em) {
-    .brief__list {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  .brief__list div {
-    border-block-start: 1px solid var(--line);
-    padding-block-start: 1rem;
-  }
-  .brief__list dd {
-    margin: 0.4rem 0 0;
-  }
-  .services {
-    margin-block-start: 2.5rem;
-  }
-  .services h3 {
+  .brief .sign-label {
     margin-block-end: 0.75rem;
   }
+  .films {
+    padding-block-end: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  }
+  .gallery {
+    padding-block-end: var(--section);
+  }
   .related {
+    border-block-start: 1px solid var(--line);
+  }
+  .related__grid {
     display: grid;
     gap: 2.5rem 2rem;
   }
   @media (min-width: 48em) {
-    .related {
+    .related__grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }

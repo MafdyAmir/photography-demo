@@ -9,18 +9,17 @@ import { t } from '../i18n/en';
 const settings = await getSettings();
 ---
 
-<BaseLayout title="Thank You" description="Your project inquiry was sent." noindex>
+<BaseLayout title="Thank You" description="Your project inquiry was sent." noindex hideDateBar>
   <section class="section">
     <div class="container narrow stack" style="--stack: 1.5rem">
-      <p class="eyebrow">Inquiry sent</p>
-      <h1>Thank you — I’ve received your project details.</h1>
+      <h1>Thanks. Your inquiry is with us.</h1>
       <p class="lead">
-        I’ll review your inquiry and get back to you by email or WhatsApp with ideas and next steps.
+        We’ll read it and get back to you by email or WhatsApp with how we’d cover your event.
       </p>
-      <p>Need to add something or talk sooner? Send me a message on WhatsApp.</p>
+      <p>Need to add something or talk sooner? Message us on WhatsApp.</p>
       <div class="btn-row">
         <a
-          class="btn btn--whatsapp"
+          class="btn"
           href={whatsappUrl(settings.whatsappNumber, 'Hi, I just sent a project inquiry through your website.')}
           target="_blank"
           rel="noopener"

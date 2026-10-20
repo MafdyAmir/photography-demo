@@ -1,0 +1,29 @@
+title: "Belmondo — Behind the Scenes"
+category: social
+client: "Belmondo (film)"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/belmondo-film-bts-08.jpg
+  alt: "Actress in a white dress checking her phone beside a film camera"
+gallery:
+  - src: ../../assets/uploads/belmondo-film-bts-01.jpg
+    alt: "Actor in a white suit and sunglasses on set"
+  - src: ../../assets/uploads/belmondo-film-bts-02.jpg
+    alt: "Two actors talking between takes"
+  - src: ../../assets/uploads/belmondo-film-bts-03.jpg
+    alt: "Cast members rehearsing a scene outdoors"
+  - src: ../../assets/uploads/belmondo-film-bts-04.jpg
+    alt: "Portrait of an actor in glasses and an orange shirt"
+  - src: ../../assets/uploads/belmondo-film-bts-05.jpg
+    alt: "Two actors in white facing each other in a scene"
+  - src: ../../assets/uploads/belmondo-film-bts-06.jpg
+    alt: "Cast gathered in a group on set"
+summary: "On set for the film Belmondo: the cast between takes and the crew at work, shot for behind-the-scenes coverage."
+coverage:
+  - "Behind-the-scenes photography"
+featured: false
+published: true
+order: 12
+date: 2025-07-29
+seo:
+  description: "On set for the film Belmondo: the cast between takes and the crew at work, shot for behind-the-scenes coverage."

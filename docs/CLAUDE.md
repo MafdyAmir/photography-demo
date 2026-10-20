@@ -1,25 +1,31 @@
 # Commercial Photography Site (MVP)
 
-Portfolio + lead-generation site for a photographer moving into product / brand / corporate photography.
-Source of truth: `docs/PRD — موقع تصوير تجاري (MVP).md` (Arabic). Read it before larger changes.
+Portfolio + lead-generation site for **Shotix Studios**, a Cairo photo + video team for events, exhibitions, launches
+and brand content. Product truth: `PRODUCT.md` (supersedes the PRD's product/brand/corporate positioning).
+Original brief: `docs/PRD — موقع تصوير تجاري (MVP).md` (Arabic). Visual direction: `.impeccable/surfaces/` and `DESIGN.md`.
 
 ## Stack (decided — overrides the PRD's WordPress recommendation)
 - Astro 7, `output: 'static'`. Content collections in `src/content.config.ts` (Zod 4 via `astro/zod`).
-- Decap CMS at `/admin` (`public/admin/`), auth via DecapBridge (photographer needs no GitHub account).
+- Decap CMS at `/admin` (`public/admin/`), auth via DecapBridge (the team needs no GitHub account).
 - Netlify hosting + Netlify Forms for the inquiry form. GA4 for analytics.
 - **No backend, no database, no server functions.** Leads go to email (Netlify Forms) or WhatsApp only.
 
 ## Content
-- Collections: `projects`, `services` (3 fixed files), `testimonials`, `settings` (singleton `site.yml`). All YAML.
-- Project slug = file name. Slugs `product`, `brand`, `corporate` are reserved (they're category URLs).
+- Collections: `projects`, `services` (4 fixed files), `testimonials`, `settings` (singleton `site.yml`). All YAML.
+- Categories (= services, "halls" A–D): `events`, `exhibitions`, `launches`, `social`. Project slug = file name;
+  category names are reserved slugs (they're category URLs). Booth codes (e.g. B02) are computed in `getBoothCodes()`.
+- Project videos: compressed MP4s in `public/videos/` + a poster image. `Film.astro` loads the Video.js 10 player
+  (`@videojs/html`) on the first press only; `FilmReel.astro` shows them in a Swiper carousel.
+- Swiper (`src/scripts/swiper.ts`, only the modules we use) is imported on demand by `FilmReel` and the `Gallery`
+  lightbox. Page transition: `Iris.astro` (camera shutter, SVG + small script, off for reduced motion).
 - All images live in `src/assets/uploads/` and are referenced relatively (`../../assets/uploads/x.jpg`)
   so Astro `<Image />` optimizes them at build time.
 - Query content through `src/lib/content.ts` (handles published filter, ordering, slug check).
 
 ## Rules
 - **Alt text is required on every image.** The schema enforces it; never bypass it with empty or generic alt.
-- Spec / self-initiated work must be `isConcept: true` and show the "Concept Project" badge. Never present
-  wedding work as commercial experience. Testimonials and client logos must be real and approved.
+- Only real Shotix work. Self-initiated work must be `isConcept: true` (badge). No link to wedding work.
+  Testimonials and client logos must be real and approved. Copy speaks as "we" (a team).
 - Never show fixed prices. The budget field stays hidden while `budgetRanges` is empty.
 - Out of scope — do not add: booking, payments, client dashboards/accounts, CRM, blog, Arabic version (yet).
 - Every page ends with a "Start a Project" CTA and has a unique title + meta description.
@@ -54,9 +60,8 @@ Source of truth: `docs/PRD — موقع تصوير تجاري (MVP).md` (Arabic)
 
 ## Docs
 - `docs/SETUP.md` — manual launch steps (GitHub, Netlify, forms, DecapBridge, GA4, domain, Search Console).
-- `docs/ADMIN-GUIDE.md` — photographer's CMS guide (Arabic).
+- `docs/ADMIN-GUIDE.md` — the team's CMS guide (Arabic).
 
 ## Commands
-- `npm run dev` / `npm run build` / `npm run check`
+- Package manager is **Bun** (`bun.lock`; `npm` is aliased to bun on the dev machine). `bun run dev` / `bun run build` / `bun run check`
 - `npm run cms` — local CMS backend for testing `/admin/`
-- `npm run seed:images` regenerates the labelled placeholder photos (all must be replaced before launch).

@@ -4,14 +4,28 @@ import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Photo from '../components/Photo.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import DateCheck from '../components/DateCheck.astro';
 import CtaSection from '../components/CtaSection.astro';
-import { getFeaturedProjects, getPublishedTestimonials, getServices, getSettings } from '../lib/content';
+import {
+  HALLS,
+  getBoothCodes,
+  getFeaturedProjects,
+  getProjectsByCategory,
+  getPublishedTestimonials,
+  getServices,
+  getSettings,
+} from '../lib/content';
 import { t } from '../i18n/en';
 
 const settings = await getSettings();
 const featured = await getFeaturedProjects(6);
 const services = await getServices();
 const testimonials = await getPublishedTestimonials();
+const codes = await getBoothCodes();
+const heroProject = featured.find((p) => p.data.coverImage.src.src === settings.heroImage.src.src);
+const hallCounts = Object.fromEntries(
+  await Promise.all(services.map(async (s) => [s.id, (await getProjectsByCategory(s.data.category)).length])),
+);
 
 // Schema.org ProfessionalService (a LocalBusiness subtype) for Google (PRD §8).
 const hero = await getImage({ src: settings.heroImage.src, width: 1200, format: 'jpeg' });
@@ -30,245 +44,346 @@ const schema = {
     addressCountry: settings.location.country,
   },
   areaServed: settings.location.areaServed ?? settings.location.city,
-  sameAs: [settings.instagram, settings.linkedin].filter(Boolean),
+  sameAs: [settings.instagram, settings.tiktok, settings.facebook, settings.linkedin].filter(Boolean),
   knowsAbout: services.map((s) => s.data.title),
 };
 ---
 
 <BaseLayout>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
-  <!-- 1. Hero -->
-  <section class="hero">
-    <div class="container hero__inner">
-      <div class="hero__text stack" style="--stack: 1.5rem">
-        <p class="eyebrow">{settings.tagline} · {settings.location.city}</p>
-        <h1>{settings.heroTitle}</h1>
+
+  <!-- Hero: the venue entrance -->
+  <section class="hero" aria-labelledby="home-title">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <h1 id="home-title">{settings.heroTitle}</h1>
         <p class="lead">{settings.heroSubtitle}</p>
-        <div class="btn-row">
-          <a class="btn btn--ghost" href={url('/work')}>{t.common.viewWork}</a>
-          <a class="btn" href={url('/contact')} data-event="start_project_click" data-event-location="home_hero">
-            {t.common.startProject}
-          </a>
+        <div class="hero__action">
+          <DateCheck location="home_hero" />
         </div>
       </div>
-      <div class="hero__media">
+      <figure class="hero__photo frame">
         <Photo image={settings.heroImage} sizes="(min-width: 56em) 58vw, 100vw" priority />
-      </div>
-    </div>
-  </section>
-
-  <!-- 2. Selected Work -->
-  {
-    featured.length > 0 && (
-      <section class="section" aria-labelledby="selected-work">
-        <div class="container">
-          <div class="section-head">
-            <h2 id="selected-work">{t.home.selectedWork}</h2>
-            <a class="link-arrow" href={url('/work')}>
-              {t.common.seeAll}
-            </a>
-          </div>
-          <ul role="list" class="work-grid">
-            {featured.map((p) => (
-              <li>
-                <ProjectCard project={p} sizes="(min-width: 48em) 50vw, 100vw" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    )
-  }
-
-  <!-- 3. Services -->
-  <section class="section section--surface" aria-labelledby="services">
-    <div class="container">
-      <div class="section-head">
-        <h2 id="services">{t.home.services}</h2>
-        <p class="muted">{t.home.servicesIntro}</p>
-      </div>
-      <ul role="list" class="services">
         {
-          services.map((s) => (
-            <li>
-              <a class="service" href={url(`/services/${s.id}`)}>
-                <div class="service__media">
-                  <Photo image={s.data.heroImage} sizes="(min-width: 48em) 33vw, 100vw" />
-                </div>
-                <h3>{s.data.title}</h3>
-                <p class="muted">{s.data.cardSummary}</p>
-                <span class="link-arrow" aria-hidden="true">
-                  {t.home.serviceLink}
-                </span>
+          heroProject && (
+            <figcaption>
+              <a class="booth-tag" href={url(`/work/${heroProject.id}`)}>
+                <b>{codes.get(heroProject.id)}</b>
+                <span>{heroProject.data.client ?? heroProject.data.title}</span>
               </a>
-            </li>
-          ))
+            </figcaption>
+          )
         }
-      </ul>
+      </figure>
     </div>
   </section>
 
-  <!-- 4. Why Work With Me -->
-  {
-    settings.whyWorkWithMe.length > 0 && (
-      <section class="section" aria-labelledby="why">
-        <div class="container why">
-          <h2 id="why">{t.home.why}</h2>
-          <ul role="list" class="why__list">
-            {settings.whyWorkWithMe.map((point) => (
-              <li>
-                <h3>{point.title}</h3>
-                <p class="muted">{point.text}</p>
-              </li>
-            ))}
-          </ul>
+  <div class="route">
+    <!-- Venue directory: the four halls -->
+    <section class="section directory" aria-labelledby="halls">
+      <div class="container indent">
+        <div class="section-head">
+          <h2 id="halls">{t.home.halls}</h2>
+          <p class="muted">{t.home.hallsIntro}</p>
         </div>
-      </section>
-    )
-  }
-
-  <!-- Testimonials (only real, published ones) -->
-  {
-    testimonials.length > 0 && (
-      <section class="section section--surface" aria-labelledby="testimonials">
-        <div class="container">
-          <h2 id="testimonials" class="section-head">
-            {t.home.testimonials}
-          </h2>
-          <ul role="list" class="quotes">
-            {testimonials.map(({ data }) => (
+        <ul role="list" class="halls">
+          {
+            services.map((s) => (
               <li>
-                <figure>
-                  <blockquote>
-                    <p>“{data.quote}”</p>
-                  </blockquote>
-                  <figcaption class="muted">
-                    <strong>{data.name}</strong>
-                    {[data.role, data.company].filter(Boolean).join(', ')}
-                  </figcaption>
-                </figure>
+                <a class="hall" href={url(`/services/${s.id}`)}>
+                  <span class="plate hall__plate" aria-hidden="true">
+                    {HALLS[s.data.category]}
+                  </span>
+                  <span class="hall__text">
+                    <span class="hall__title">{s.data.title}</span>
+                    <span class="hall__summary">{s.data.cardSummary}</span>
+                    <span class="hall__count">
+                      {hallCounts[s.id]} {hallCounts[s.id] === 1 ? 'project' : 'projects'}
+                    </span>
+                  </span>
+                  <span class="hall__photo frame">
+                    <Photo image={s.data.heroImage} sizes="(min-width: 56em) 22vw, 30vw" />
+                  </span>
+                </a>
               </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    )
-  }
-
-  <!-- Client logos (only with permission) -->
-  {
-    settings.clientLogos.length > 0 && (
-      <section class="section--tight" aria-labelledby="clients">
-        <div class="container">
-          <h2 id="clients" class="eyebrow">
-            {t.home.clients}
-          </h2>
-          <ul role="list" class="logos">
-            {settings.clientLogos.map((c) => (
-              <li>
-                <Image src={c.logo} alt={c.name} height={48} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    )
-  }
-
-  <!-- 5. About -->
-  <section class="section" aria-labelledby="about">
-    <div class="container about">
-      <div class="about__media">
-        <Photo image={settings.photographerPhoto} sizes="(min-width: 48em) 40vw, 100vw" />
+            ))
+          }
+        </ul>
       </div>
-      <div class="stack" style="--stack: 1.25rem">
-        <p class="eyebrow" id="about">{t.home.about}</p>
-        <p class="about__text">{settings.aboutShort}</p>
-        <a class="link-arrow" href={url('/about')}>{t.home.aboutMore}</a>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- 6. Final CTA -->
+    <!-- Featured booths -->
+    {
+      featured.length > 0 && (
+        <section class="section featured" aria-labelledby="selected-work">
+          <div class="container indent">
+            <div class="section-head">
+              <h2 id="selected-work">{t.home.selectedWork}</h2>
+              <a class="link-arrow" href={url('/work')}>
+                {t.common.seeAll}
+              </a>
+            </div>
+            <ul role="list" class="booth-grid">
+              {featured.map((p, i) => (
+                <li class:list={[i === 0 && 'is-lead']}>
+                  <ProjectCard
+                    project={p}
+                    code={codes.get(p.id)}
+                    feature={i === 0}
+                    sizes={i === 0 ? '(min-width: 56em) 80vw, 100vw' : '(min-width: 56em) 40vw, 100vw'}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Why Shotix -->
+    {
+      settings.whyWorkWithMe.length > 0 && (
+        <section class="section why" aria-labelledby="why">
+          <div class="container indent why__grid">
+            <h2 id="why">{t.home.why}</h2>
+            <ul role="list" class="why__list">
+              {settings.whyWorkWithMe.map((point) => (
+                <li>
+                  <h3>{point.title}</h3>
+                  <p class="muted">{point.text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Testimonials (only real, published ones) -->
+    {
+      testimonials.length > 0 && (
+        <section class="section" aria-labelledby="testimonials">
+          <div class="container indent">
+            <h2 id="testimonials" class="section-head">
+              {t.home.testimonials}
+            </h2>
+            <ul role="list" class="quotes">
+              {testimonials.map(({ data }) => (
+                <li>
+                  <figure>
+                    <blockquote>
+                      <p>“{data.quote}”</p>
+                    </blockquote>
+                    <figcaption class="muted">
+                      <strong>{data.name}</strong>
+                      {[data.role, data.company].filter(Boolean).join(', ')}
+                    </figcaption>
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Client logos (only with permission) -->
+    {
+      settings.clientLogos.length > 0 && (
+        <section class="section--tight" aria-labelledby="clients">
+          <div class="container indent">
+            <h2 id="clients" class="sign-label">
+              {t.home.clients}
+            </h2>
+            <ul role="list" class="logos">
+              {settings.clientLogos.map((c) => (
+                <li>
+                  <Image src={c.logo} alt={c.name} height={48} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- About -->
+    <section class="section about" aria-labelledby="about">
+      <div class="container indent about__grid">
+        <div class="about__media frame">
+          <Photo image={settings.aboutImage} sizes="(min-width: 48em) 40vw, 100vw" />
+        </div>
+        <div class="stack" style="--stack: 1.25rem">
+          <h2 id="about">{t.home.about}</h2>
+          <p class="about__text">{settings.aboutShort}</p>
+          <a class="link-arrow" href={url('/about')}>{t.home.aboutMore}</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <CtaSection title={settings.finalCtaTitle} text={settings.finalCtaText} location="home_final" />
 </BaseLayout>
 
 <style>
-  .hero {
-    padding-block: clamp(2rem, 1rem + 4vw, 5rem) clamp(1rem, 4vw, 3rem);
-  }
-  .hero__inner {
-    display: grid;
-    gap: 2.5rem;
-    align-items: center;
-  }
-  @media (min-width: 56em) {
-    .hero__inner {
-      grid-template-columns: 5fr 7fr;
-      gap: 4rem;
-    }
-  }
-  .hero__media {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--surface-2);
-  }
-  .hero__media :global(img) {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
+  .indent {
+    padding-inline-start: var(--indent);
   }
 
-  .work-grid {
+  /* Hero: heading over the venue photo on phones, side by side on desktop. */
+  .hero {
+    padding-block-start: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  }
+  .hero__grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .hero__text h1 {
+    font-size: clamp(3rem, 1.8rem + 6vw, 6rem);
+  }
+  .hero__text .lead {
+    margin-block-start: 1rem;
+  }
+  .hero__action {
+    display: none;
+  }
+  .hero__photo {
+    position: relative;
+    margin: 0 calc(var(--gutter) * -1);
+    aspect-ratio: 4 / 5;
+  }
+  /* Phones: the booth tag sits at the top of the photo so it is in the first screen. */
+  .hero__photo figcaption {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: var(--indent);
+  }
+  @media (min-width: 56em) {
+    .hero__photo figcaption {
+      inset-block-start: auto;
+      inset-block-end: 0;
+    }
+  }
+  .hero__photo .booth-tag {
+    text-decoration: none;
+  }
+  @media (min-width: 56em) {
+    .hero__grid {
+      grid-template-columns: minmax(22rem, 1fr) 1.4fr;
+      gap: clamp(2rem, 1rem + 3vw, 4rem);
+      min-block-size: min(46rem, calc(100svh - var(--header-h) - 3rem));
+    }
+    .hero__text {
+      align-self: end;
+    }
+    .hero__action {
+      display: block;
+      margin-block-start: 2rem;
+      padding: 1.5rem;
+      background: var(--navy);
+    }
+    .hero__photo {
+      margin: 0;
+      margin-inline-end: calc(var(--gutter) * -1);
+      aspect-ratio: auto;
+      min-block-size: 100%;
+    }
+  }
+
+  /* Venue directory */
+  .halls {
+    border-block-start: 1px solid var(--line);
+  }
+  .hall {
+    display: grid;
+    grid-template-columns: 3.25rem 1fr 5.5rem;
+    gap: 1rem;
+    align-items: center;
+    padding-block: 1.1rem;
+    border-block-end: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .hall__plate {
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+    font-size: 2.6rem;
+  }
+  .hall__text {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .hall__title {
+    font: 800 var(--step-2) / 0.95 var(--font-sign);
+    text-transform: uppercase;
+  }
+  .hall__summary {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .hall__count {
+    font: 700 var(--step--1) / 1 var(--font-sign);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .hall__photo {
+    aspect-ratio: 1;
+  }
+  .hall__photo :global(img) {
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hall:hover .hall__title {
+    color: var(--gold);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hall:hover .hall__photo :global(img) {
+      transform: scale(1.06);
+    }
+  }
+  @media (min-width: 56em) {
+    .hall {
+      grid-template-columns: 6rem 1fr 18rem;
+      gap: 2rem;
+      padding-block: 1.5rem;
+    }
+    .hall__plate {
+      inline-size: 6rem;
+      block-size: 6rem;
+      font-size: 5rem;
+    }
+    .hall__title {
+      font-size: var(--step-3);
+    }
+    .hall__summary {
+      font-size: var(--step-0);
+    }
+    .hall__photo {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  .booth-grid {
     display: grid;
     gap: clamp(2.5rem, 2rem + 2vw, 4rem) clamp(1rem, 0.5rem + 2vw, 2.5rem);
   }
-  @media (min-width: 48em) {
-    .work-grid {
+  @media (min-width: 40em) {
+    .booth-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-  }
-
-  .services {
-    display: grid;
-    gap: 2.5rem;
-  }
-  @media (min-width: 48em) {
-    .services {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
+    .booth-grid .is-lead {
+      grid-column: 1 / -1;
     }
-  }
-  .service {
-    display: grid;
-    gap: 0.75rem;
-    text-decoration: none;
-  }
-  .service__media {
-    aspect-ratio: 3 / 2;
-    overflow: hidden;
-    margin-block-end: 0.5rem;
-    background: var(--surface-2);
-  }
-  .service__media :global(img) {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-  }
-  .service .link-arrow {
-    justify-self: start;
-  }
-  .service:hover h3 {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
   }
 
   .why {
+    background: var(--navy);
+  }
+  .why__grid {
     display: grid;
     gap: 2.5rem;
   }
   @media (min-width: 56em) {
-    .why {
+    .why__grid {
       grid-template-columns: 1fr 2fr;
       gap: 4rem;
     }
@@ -279,18 +394,19 @@ const schema = {
   }
   @media (min-width: 40em) {
     .why__list {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
   .why__list li {
-    border-block-start: 1px solid var(--line);
-    padding-block-start: 1.25rem;
+    border-block-start: 3px solid var(--gold);
+    padding-block-start: 1.1rem;
   }
   .why__list h3 {
-    font-family: var(--font-body);
-    font-size: var(--step-0);
-    font-weight: 600;
-    margin-block-end: 0.4rem;
+    font-size: var(--step-1);
+    margin-block-end: 0.5rem;
+  }
+  .why__list .muted {
+    color: #c3beb5;
   }
 
   .quotes {
@@ -307,7 +423,6 @@ const schema = {
   }
   .quotes blockquote {
     margin: 0 0 1rem;
-    font-family: var(--font-display);
     font-size: var(--step-2);
     line-height: 1.25;
   }
@@ -326,35 +441,28 @@ const schema = {
   .logos :global(img) {
     block-size: 2.5rem;
     inline-size: auto;
-    filter: grayscale(1);
-    opacity: 0.75;
+    filter: grayscale(1) invert(1);
+    opacity: 0.8;
   }
 
-  .about {
+  .about__grid {
     display: grid;
     gap: 2.5rem;
     align-items: center;
   }
   @media (min-width: 48em) {
-    .about {
+    .about__grid {
       grid-template-columns: 2fr 3fr;
       gap: 4rem;
     }
   }
   .about__media {
     aspect-ratio: 4 / 5;
-    overflow: hidden;
-    max-inline-size: 28rem;
-    background: var(--surface-2);
-  }
-  .about__media :global(img) {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
+    max-inline-size: 30rem;
   }
   .about__text {
-    font-family: var(--font-display);
     font-size: var(--step-2);
-    line-height: 1.3;
+    line-height: 1.25;
+    max-inline-size: 34rem;
   }
 </style>

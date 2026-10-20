@@ -5,9 +5,10 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Photo from '../../components/Photo.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
+import FilmReel from '../../components/FilmReel.astro';
+import DateCheck from '../../components/DateCheck.astro';
 import CtaSection from '../../components/CtaSection.astro';
-import { CATEGORY_LABELS, getProjectsByCategory, getServices } from '../../lib/content';
-import { whatsappMessages } from '../../lib/whatsapp';
+import { CATEGORY_LABELS, HALLS, getBoothCodes, getProjectsByCategory, getServices } from '../../lib/content';
 import { t } from '../../i18n/en';
 
 export const getStaticPaths = (async () => {
@@ -21,162 +22,367 @@ interface Props {
 
 const { service } = Astro.props;
 const d = service.data;
-const examples = (await getProjectsByCategory(d.category)).slice(0, 6);
-const waMessage = whatsappMessages.service(d.title);
+const hall = HALLS[d.category];
+const projects = await getProjectsByCategory(d.category);
+const codes = await getBoothCodes();
+const heroImage = d.heroImage;
+// The booth the hero photo comes from, so the first frame on the page traces to a real project.
+const isHero = (img: { src: { src: string } }) => img.src.src === heroImage.src.src;
+const lead = projects.find((p) => isHero(p.data.coverImage) || p.data.gallery.some(isHero));
+// If the hero is a booth's cover, that booth shows its next frame here so the page never repeats a photo.
+const cardImage = (p: (typeof projects)[number]) =>
+  isHero(p.data.coverImage) ? p.data.gallery.find((g) => !isHero(g)) : undefined;
+const films = projects.flatMap((p) => p.data.videos.map((v) => ({ ...v, project: p })));
 ---
 
 <BaseLayout
   title={d.seo.title ?? d.title}
   description={d.seo.description ?? d.intro.slice(0, 160)}
-  image={d.heroImage.src}
-  whatsappMessage={waMessage}
+  image={heroImage.src}
+  service={d.title}
 >
-  <!-- 1. What is it? -->
-  <section class="hero">
-    <div class="container hero__inner">
-      <div class="stack" style="--stack: 1.5rem">
-        <p class="eyebrow">{t.nav.services}</p>
-        <h1>{d.title}</h1>
-        <p class="lead">{d.intro}</p>
-        <div class="btn-row">
-          <a
-            class="btn"
-            href={url(`/contact?service=${d.category}#inquiry`)}
-            data-event="start_project_click"
-            data-event-location="service_hero"
-          >
-            {t.common.startProject}
-          </a>
+  <div class="route">
+    <!-- What is it? -->
+    <section class="hero" aria-labelledby="hall-title">
+      <div class="container hero__grid">
+        <div class="plate hero__plate" aria-hidden="true"><span>{hall}</span></div>
+        <div class="hero__text">
+          <h1 id="hall-title"><span class="visually-hidden">{t.common.hall} {hall}: </span>{d.title}</h1>
+          <p class="lead hero__lede">{d.cardSummary}</p>
+          <p class="lead hero__intro">{d.intro}</p>
+          <div class="hero__action">
+            <DateCheck service={d.title} location={`service_${d.category}_hero`} />
+          </div>
         </div>
+        <figure class="hero__photo frame">
+          <Photo image={heroImage} sizes="(min-width: 56em) 55vw, 100vw" priority />
+          {
+            lead && (
+              <figcaption>
+                <a class="booth-tag" href={url(`/work/${lead.id}`)}>
+                  <b>{codes.get(lead.id)}</b>
+                  <span>{lead.data.client ?? lead.data.title}</span>
+                </a>
+              </figcaption>
+            )
+          }
+        </figure>
       </div>
-      <div class="hero__media">
-        <Photo image={d.heroImage} sizes="(min-width: 56em) 50vw, 100vw" priority />
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- 2. Who needs it? + deliverables -->
-  <section class="section section--surface">
-    <div class="container two-col">
-      <div class="stack">
-        <h2>{t.service.whoFor}</h2>
-        <p>{d.whoItsFor}</p>
-      </div>
-      <div class="stack">
-        <h2>{t.service.deliverables}</h2>
-        <ul class="deliverables">
-          {d.deliverables.map((item) => <li>{item}</li>)}
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3. Examples (projects in this category, automatic) -->
-  <section class="section" aria-labelledby="examples">
-    <div class="container">
-      <div class="section-head">
-        <h2 id="examples">{t.service.examples}</h2>
+    <!-- Examples: the booths in this hall -->
+    <section class="section booths" aria-labelledby="examples">
+      <div class="container indent">
+        <div class="section-head">
+          <h2 id="examples">{t.service.examples}</h2>
+          {projects.length > 0 && <a class="link-arrow" href={url(`/work/${d.category}`)}>{t.common.seeAll}</a>}
+        </div>
         {
-          examples.length > 0 && (
-            <a class="link-arrow" href={url(`/work/${d.category}`)}>
-              {t.common.seeAll} ({CATEGORY_LABELS[d.category]})
-            </a>
+          projects.length > 0 ? (
+            <ul role="list" class="booth-grid">
+              {projects.map((p, i) => (
+                <li class:list={[i === 0 && 'is-lead']}>
+                  <ProjectCard
+                    project={p}
+                    code={codes.get(p.id)}
+                    image={cardImage(p)}
+                    feature={i === 0}
+                    sizes={i === 0 ? '(min-width: 56em) 80vw, 100vw' : '(min-width: 56em) 40vw, 100vw'}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="muted">{t.service.examplesEmpty}</p>
           )
         }
       </div>
-      {
-        examples.length > 0 ? (
-          <ul role="list" class="examples">
-            {examples.map((p) => (
+    </section>
+
+    <!-- Films and reels from this hall -->
+    {
+      films.length > 0 && (
+        <section class="section--tight films" aria-labelledby="films">
+          <div class="container indent">
+            <h2 id="films" class="section-head">
+              {t.video.films}
+            </h2>
+            <FilmReel
+              films={films.map(({ project, ...f }) => ({ ...f, code: codes.get(project.id), client: project.data.client }))}
+            />
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Who needs it? + what you get: the hall's directory board -->
+    <section class="section directory" aria-labelledby="who">
+      <div class="container indent directory__grid">
+        <div>
+          <h2 id="who">{t.service.whoFor}</h2>
+          <p class="lead directory__who">{d.whoItsFor}</p>
+        </div>
+        <div class="board">
+          <h2 class="board__head">
+            <span class="board__hall" aria-hidden="true">{hall}</span>
+            {t.service.deliverables}
+          </h2>
+          <ol role="list" class="board__list">
+            {
+              d.deliverables.map((item, i) => (
+                <li>
+                  <b aria-hidden="true">{i + 1}</b>
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to order it: stops on the route -->
+    <section class="section process" aria-labelledby="process">
+      <div class="container indent">
+        <h2 id="process" class="section-head">{t.service.process}</h2>
+        <ol role="list" class="stops">
+          {
+            d.process.map((s, i) => (
               <li>
-                <ProjectCard project={p} />
+                <span class="stops__mark" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
               </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="muted">{t.service.examplesEmpty}</p>
-        )
-      }
-    </div>
-  </section>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+  </div>
 
-  <!-- 4. How to order it -->
-  <section class="section section--surface" aria-labelledby="process">
-    <div class="container">
-      <h2 id="process" class="section-head">{t.service.process}</h2>
-      <ol role="list" class="steps">
-        {
-          d.process.map((s) => (
-            <li>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
-
-  <CtaSection title={t.service.ctaTitle} whatsappMessage={waMessage} service={d.category} location={`service_${d.category}`} />
+  <CtaSection
+    title={t.service.ctaTitle}
+    text={`${CATEGORY_LABELS[d.category]}: send us the date and venue.`}
+    service={d.category}
+    serviceName={d.title}
+    location={`service_${d.category}`}
+  />
 </BaseLayout>
 
 <style>
-  .hero {
-    padding-block: clamp(2rem, 1rem + 4vw, 5rem) var(--section);
+  .indent {
+    padding-inline-start: var(--indent);
   }
-  .hero__inner {
+
+  /* Hero: the hall sign. Phone: a gold plate down the inline-start edge, heading beside it, photo below. */
+  .hero {
+    padding-block-start: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  }
+  .hero__grid {
     display: grid;
-    gap: 2.5rem;
-    align-items: center;
+    grid-template-columns: 4.5rem 1fr;
+    column-gap: 1rem;
+  }
+  .hero__plate {
+    grid-row: 1;
+    align-self: stretch;
+    place-items: start center;
+    padding-block-start: 0.4rem;
+    font-size: 5.25rem;
+  }
+  .hero__text {
+    grid-row: 1;
+    padding-block: 0.25rem 1.5rem;
+  }
+  .hero__text h1 {
+    font-size: clamp(2.7rem, 1.6rem + 5.5vw, 5.75rem);
+  }
+  .hero__text .lead {
+    margin-block-start: 1rem;
+  }
+  /* Phones get one line so the photo owns the first screen; desktop has room for the full intro. */
+  .hero__intro {
+    display: none;
   }
   @media (min-width: 56em) {
-    .hero__inner {
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+    .hero__lede {
+      display: none;
+    }
+    .hero__intro {
+      display: block;
     }
   }
-  .hero__media {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--surface-2);
+  .hero__action {
+    display: none;
   }
-  .hero__media :global(img) {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
+  .hero__photo {
+    position: relative;
+    grid-column: 1 / -1;
+    margin: 0 calc(var(--gutter) * -1);
+    aspect-ratio: 4 / 5;
   }
-  .two-col {
-    display: grid;
-    gap: 3rem;
+  /* Phones: the booth tag sits at the top of the photo so it is in the first screen. */
+  .hero__photo figcaption {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: var(--indent);
   }
-  @media (min-width: 48em) {
-    .two-col {
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+  @media (min-width: 56em) {
+    .hero__photo figcaption {
+      inset-block-start: auto;
+      inset-block-end: 0;
     }
   }
-  .two-col h2 {
-    font-size: var(--step-2);
+  .hero__photo .booth-tag {
+    text-decoration: none;
   }
-  .deliverables {
-    margin: 0;
-    padding-inline-start: 1.2em;
+  .hero__photo .booth-tag:hover span {
+    color: var(--gold);
   }
-  .deliverables li + li {
-    margin-block-start: 0.5rem;
+
+  /* Desktop: the plate grows into a tall gold column, the photo takes the right side. */
+  @media (min-width: 56em) {
+    .hero__grid {
+      grid-template-columns: clamp(7rem, 4rem + 4vw, 9.5rem) minmax(20rem, 1fr) 1.45fr;
+      column-gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+      min-block-size: min(46rem, calc(100svh - var(--header-h) - 3rem));
+    }
+    .hero__plate {
+      font-size: clamp(8rem, 5rem + 6vw, 12rem);
+      padding-block-start: 1rem;
+    }
+    .hero__text {
+      align-self: end;
+      padding-block: 0;
+    }
+    .hero__action {
+      display: block;
+      margin-block-start: 2rem;
+      padding: 1.5rem;
+      background: var(--navy);
+    }
+    .hero__photo {
+      grid-row: 1;
+      grid-column: 3;
+      margin: 0;
+      margin-inline-end: calc(var(--gutter) * -1);
+      aspect-ratio: auto;
+      min-block-size: 100%;
+    }
   }
-  .examples {
+
+  /* Booth directory: the lead booth wide, then two columns. */
+  .booth-grid {
     display: grid;
-    gap: 2.5rem 2rem;
+    gap: clamp(2.5rem, 2rem + 2vw, 4rem) clamp(1rem, 0.5rem + 2vw, 2.5rem);
   }
   @media (min-width: 40em) {
-    .examples {
+    .booth-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-  }
-  @media (min-width: 64em) {
-    .examples {
-      grid-template-columns: repeat(3, 1fr);
+    .booth-grid .is-lead {
+      grid-column: 1 / -1;
     }
+  }
+
+  /* Directory board: the hall letter heads it, each deliverable is a numbered line like a venue board. */
+  .directory__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 56em) {
+    .directory__grid {
+      grid-template-columns: 1fr 1.1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+  }
+  .directory h2 {
+    font-size: var(--step-3);
+  }
+  .directory__who {
+    margin-block-start: 1rem;
+    color: var(--ink);
+  }
+  .board {
+    background: var(--navy);
+  }
+  .board__head {
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+    padding-inline-end: 1rem;
+    background: var(--gold);
+    color: var(--on-gold);
+    text-transform: uppercase;
+  }
+  .directory .board__head {
+    font-size: var(--step-2);
+  }
+  .board__hall {
+    display: grid;
+    place-items: center;
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+    background: var(--on-gold);
+    color: var(--gold);
+    font-weight: 900;
+  }
+  .board__list li {
+    display: grid;
+    grid-template-columns: 3.25rem 1fr;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding-block: 0.9rem;
+    padding-inline-end: 1rem;
+    border-block-end: 1px solid rgb(255 255 255 / 0.1);
+    font-size: var(--step-1);
+  }
+  .board__list li:last-child {
+    border-block-end: 0;
+  }
+  .board__list b {
+    text-align: center;
+    font: 900 var(--step-1) / 1 var(--font-sign);
+    letter-spacing: 0.04em;
+    color: var(--gold);
+  }
+
+  /* Process: each step is a stop sitting on the route line. */
+  .stops li {
+    position: relative;
+    display: grid;
+    gap: 0.35rem 2rem;
+    padding-block: 1.25rem;
+    border-block-start: 1px solid var(--line);
+  }
+  @media (min-width: 48em) {
+    .stops li {
+      grid-template-columns: minmax(10rem, 16rem) 1fr;
+      align-items: baseline;
+    }
+  }
+  .stops__mark {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: 1.25rem;
+    /* Centred on the route line, which runs 1.25rem before the indented column. */
+    inset-inline-start: calc(-1.25rem + var(--route-w) / 2 - 0.85rem);
+    display: grid;
+    place-items: center;
+    inline-size: 1.7rem;
+    block-size: 1.7rem;
+    background: var(--gold);
+    color: var(--on-gold);
+    font: 900 var(--step-0) / 1 var(--font-sign);
+  }
+  .stops h3 {
+    font-size: var(--step-2);
+  }
+  .stops p {
+    color: var(--muted);
+    max-inline-size: 60ch;
   }
 </style>

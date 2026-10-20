@@ -1,0 +1,39 @@
+title: "Azad Art Gallery Opening"
+category: launches
+client: "Azad Art Gallery"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/azad-art-gallery-exhibition-08.jpg
+  alt: "Artist in a green dress beside her painting of a figure in red"
+gallery:
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-01.jpg
+    alt: "Gallery corridor lined with large paintings"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-02.jpg
+    alt: "Painting of a figure in a blue boat on a white wall"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-03.jpg
+    alt: "Three framed drawings on a grey wall"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-04.jpg
+    alt: "Two guests talking in the gallery"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-06.jpg
+    alt: "Large painting of a seated figure under soft light"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-07.jpg
+    alt: "Group of guests looking at the artwork"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-10.jpg
+    alt: "Two framed portraits on a grey wall"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-11.jpg
+    alt: "Two guests walking through the gallery"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-12.jpg
+    alt: "Guest photographing a painting on her phone"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-13.jpg
+    alt: "Artist and guests posing in front of a painting"
+  - src: ../../assets/uploads/azad-art-gallery-exhibition-14.jpg
+    alt: "Guest studying framed drawings"
+summary: "Opening night of an art exhibition at Azad Art Gallery: the works, the artist and the guests who came to see them."
+coverage:
+  - "Opening photography"
+featured: false
+published: true
+order: 14
+date: 2025-07-16
+seo:
+  description: "Opening night of an art exhibition at Azad Art Gallery: the works, the artist and the guests who came to see them."

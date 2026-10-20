@@ -1,0 +1,29 @@
+title: "Cairo Marathon"
+category: events
+client: "Cairo Marathon"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/cairo-marathon-01.jpg
+  alt: "Host speaking on the Cairo Marathon stage beside the 1-2-3 winners' podium"
+gallery:
+  - src: ../../assets/uploads/cairo-marathon-02.jpg
+    alt: "Spectator photographing the race on a phone, red banner behind"
+  - src: ../../assets/uploads/cairo-marathon-03.jpg
+    alt: "Cairo Marathon finish stage and podium in daylight"
+  - src: ../../assets/uploads/cairo-marathon-04.jpg
+    alt: "Runners gathered at dusk in front of the illuminated marathon stage"
+videos:
+  - src: /videos/897289193051863.mp4
+    title: "Cairo Marathon — reel"
+    orientation: vertical
+    poster: ../../assets/uploads/cairo-marathon-video-1.jpg
+summary: "Race-day coverage of the Cairo Marathon: the stage, the podium, the runners and the evening crowd."
+coverage:
+  - "Event photography"
+  - "Highlight reel"
+featured: false
+published: true
+order: 8
+date: 2026-02-10
+seo:
+  description: "Race-day coverage of the Cairo Marathon: the stage, the podium, the runners and the evening crowd."

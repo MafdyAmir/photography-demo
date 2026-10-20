@@ -1,4 +1,5 @@
 ---
+/** A project as a booth: the photo is the exhibit, the gold booth code and client sit on it like a stand number. */
 import { url } from '../lib/url';
 import Photo from './Photo.astro';
 import { CATEGORY_LABELS, type Project } from '../lib/content';
@@ -6,66 +7,117 @@ import { t } from '../i18n/en';
 
 interface Props {
   project: Project;
+  /** Booth code from getBoothCodes(), e.g. "B02". */
+  code?: string;
   sizes?: string;
   headingLevel?: 'h2' | 'h3';
+  /** Taller crop for the lead booth in a directory. */
+  feature?: boolean;
+  /** Use this frame instead of the cover (e.g. when the cover is already the page hero). */
+  image?: Project['data']['coverImage'];
 }
 
-const { project, sizes = '(min-width: 64em) 33vw, (min-width: 40em) 50vw, 100vw', headingLevel = 'h3' } = Astro.props;
-const { title, category, coverImage, isConcept, client } = project.data;
+const {
+  project,
+  code,
+  sizes = '(min-width: 64em) 33vw, (min-width: 40em) 50vw, 100vw',
+  headingLevel = 'h3',
+  feature = false,
+  image,
+} = Astro.props;
+const { title, category, coverImage, isConcept, client, videos } = project.data;
 const Heading = headingLevel;
 ---
 
-<article class="card">
-  <a class="card__link" href={url(`/work/${project.id}`)}>
-    <div class="card__media">
-      <Photo image={coverImage} sizes={sizes} />
+<article class:list={['booth', feature && 'booth--feature']}>
+  <a class="booth__link" href={url(`/work/${project.id}`)}>
+    <div class="booth__media frame">
+      <Photo image={image ?? coverImage} sizes={sizes} />
+      {
+        code && (
+          <p class="booth-tag booth__tag">
+            <b>{code}</b>
+            <span>{client ?? CATEGORY_LABELS[category]}</span>
+          </p>
+        )
+      }
+      {videos.length > 0 && <span class="booth__film">Film</span>}
     </div>
-    <div class="card__meta">
-      <p class="eyebrow">
-        {CATEGORY_LABELS[category]}{client && !isConcept && ` · ${client}`}
-      </p>
-      {isConcept && <span class="badge-concept">{t.common.conceptBadge}</span>}
-    </div>
-    <Heading class="card__title">{title}</Heading>
+    <Heading class="booth__title">{title}</Heading>
+    {isConcept && <span class="badge-concept">{t.common.conceptBadge}</span>}
   </a>
 </article>
 
 <style>
-  .card__link {
+  .booth__link {
     display: block;
     text-decoration: none;
   }
-  .card__media {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--surface-2);
+  .booth__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
   }
-  .card__media :global(img) {
+  .booth--feature .booth__media {
+    aspect-ratio: 4 / 5;
+  }
+  @media (min-width: 40em) {
+    .booth__media {
+      aspect-ratio: 4 / 3;
+    }
+    .booth--feature .booth__media {
+      aspect-ratio: 16 / 10;
+    }
+  }
+  .booth__media :global(img) {
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
-    transition: transform 0.6s ease;
+    transition:
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.4s;
   }
   @media (prefers-reduced-motion: no-preference) {
-    .card__link:hover :global(img) {
-      transform: scale(1.03);
+    .booth__link:hover :global(img) {
+      transform: scale(1.035);
     }
   }
-  .card__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-block-start: 1rem;
+  .booth__tag {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    max-inline-size: calc(100% - 4rem);
   }
-  .card__title {
-    margin-block-start: 0.4rem;
+  .booth__tag span {
+    min-inline-size: 0;
+    display: block;
+    line-height: 1.6em;
+    padding-block: 0.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .booth__film {
+    position: absolute;
+    inset-block-start: 0.75rem;
+    inset-inline-end: 0.75rem;
+    padding: 0.35em 0.6em;
+    background: rgb(10 10 11 / 0.82);
+    color: var(--ink);
+    font: 800 var(--step--1) / 1 var(--font-sign);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .booth__title {
+    margin-block-start: 0.85rem;
     font-size: var(--step-2);
   }
-  .card__link:hover .card__title {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.15em;
+  .booth--feature .booth__title {
+    font-size: var(--step-3);
+  }
+  .booth__link:hover .booth__title {
+    color: var(--gold);
+  }
+  .badge-concept {
+    margin-block-start: 0.6rem;
   }
 </style>

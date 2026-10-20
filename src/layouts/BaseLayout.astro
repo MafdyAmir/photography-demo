@@ -5,8 +5,9 @@ import { Font, getImage } from 'astro:assets';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import WhatsAppFab from '../components/WhatsAppFab.astro';
+import DateCheck from '../components/DateCheck.astro';
 import Analytics from '../components/Analytics.astro';
+import Iris from '../components/Iris.astro';
 import { getServices, getSettings } from '../lib/content';
 import { locale, t } from '../i18n/en';
 
@@ -17,8 +18,10 @@ interface Props {
   /** Share image for WhatsApp / LinkedIn previews. Falls back to the default from Site Settings. */
   image?: ImageMetadata;
   ogType?: 'website' | 'article';
-  /** Pre-filled WhatsApp message for this page (PRD FR-2). */
-  whatsappMessage?: string;
+  /** Service name added to the sticky "Check your date" message. */
+  service?: string;
+  /** Hide the sticky phone bar (contact and thank-you pages already lead to contact). */
+  hideDateBar?: boolean;
   noindex?: boolean;
 }
 
@@ -29,7 +32,8 @@ const {
   description = settings.defaultSeo.description,
   image = settings.defaultSeo.ogImage ?? settings.heroImage.src,
   ogType = 'website',
-  whatsappMessage,
+  service,
+  hideDateBar = false,
   noindex = false,
 } = Astro.props;
 
@@ -49,8 +53,9 @@ const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION as string | unde
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#f6f4f0" />
-    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <meta name="theme-color" content="#0a0a0b" />
+    <link rel="icon" href={url('/favicon.png')} type="image/png" />
+    <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />
     <link rel="sitemap" href={url('/sitemap-index.xml')} />
 
     <meta property="og:type" content={ogType} />
@@ -67,17 +72,27 @@ const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION as string | unde
     {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
 
     <Font cssVariable="--font-sans" preload />
-    <Font cssVariable="--font-serif" preload />
+    <Font cssVariable="--font-display" preload />
     <Analytics />
+    <!-- Arriving through the camera iris: start shut, before first paint (Iris.astro opens it). -->
+    <script is:inline>
+      try {
+        if (sessionStorage.getItem('iris') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('iris-in');
+          setTimeout(() => document.documentElement.classList.remove('iris-in'), 3000);
+        }
+      } catch {}
+    </script>
     <slot name="head" />
   </head>
-  <body>
+  <body class:list={[!hideDateBar && 'has-date-bar']}>
+    <Iris />
     <a class="skip-link" href="#main">{t.nav.skip}</a>
     <Header siteName={settings.siteName} services={services} />
     <main id="main">
       <slot />
     </main>
     <Footer settings={settings} services={services} />
-    <WhatsAppFab number={settings.whatsappNumber} message={whatsappMessage ?? settings.whatsappDefaultMessage} />
+    {!hideDateBar && <DateCheck variant="bar" service={service} location="sticky_bar" />}
   </body>
 </html>

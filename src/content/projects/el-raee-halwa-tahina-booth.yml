@@ -1,0 +1,30 @@
+title: "El Raee Halwa & Tahina Booth"
+category: exhibitions
+client: "El Raee Halwa & Tahina"
+isConcept: false
+coverImage:
+  src: ../../assets/uploads/el-raee-halwa-tahina-booth-04.jpg
+  alt: "El Raee booth with lit shelves of halva and tahini products"
+gallery:
+  - src: ../../assets/uploads/el-raee-halwa-tahina-booth-02.jpg
+    alt: "Visitor in a white keffiyeh tasting at the booth"
+  - src: ../../assets/uploads/el-raee-halwa-tahina-booth-03.jpg
+    alt: "Visitors photographing the booth display"
+  - src: ../../assets/uploads/el-raee-halwa-tahina-booth-05.jpg
+    alt: "Halva packs on black shelves in pyramid-shaped boxes"
+  - src: ../../assets/uploads/el-raee-halwa-tahina-booth-06.jpg
+    alt: "Tall El Raee booth column with a printed brand visual"
+  - src: ../../assets/uploads/el-raee-halwa-tahina-booth-07.jpg
+    alt: "Chocolate fountain on the booth counter"
+  - src: ../../assets/uploads/el-raee-halwa-tahina-booth-08.jpg
+    alt: "El Raee booth tower with gold branding and visitors passing"
+summary: "A second exhibition for El Raee: a dark, gold-lit booth built around their halva and tahini range, and the visitors it drew in."
+coverage:
+  - "Booth photography"
+  - "Product details"
+featured: false
+published: true
+order: 10
+date: 2025-10-21
+seo:
+  description: "A second exhibition for El Raee: a dark, gold-lit booth built around their halva and tahini range, and the visitors it drew in."

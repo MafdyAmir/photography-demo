@@ -1,4 +1,4 @@
-# Decap CMS configuration — the photographer's editing panel at /admin
+# Decap CMS configuration — the Shotix team's editing panel at /admin
 # Field rules here mirror src/content.config.ts. If you change one, change the other.
 
 # ─── Login ──────────────────────────────────────────────────────────────────────
@@ -69,7 +69,7 @@ collections:
     label: Projects
     label_singular: Project
     description: >-
-      Your portfolio case studies. Turn on "Published" to show a project on the site,
+      Your portfolio projects. Turn on "Published" to show a project on the site,
       and "Featured" to show it on the Home page (4–6 featured projects works best).
     folder: src/content/projects
     # Paths relative to the entry file, so the editor can show thumbnails and Astro can optimize the images.
@@ -84,9 +84,10 @@ collections:
     summary: "{{title}} · {{category}}{{published | ternary('', ' · HIDDEN')}}{{featured | ternary(' · ★ Featured', '')}}"
     sortable_fields: ['order', 'date', 'title', 'category']
     view_filters:
-      - { label: Product, field: category, pattern: product }
-      - { label: Brand, field: category, pattern: brand }
-      - { label: Corporate, field: category, pattern: corporate }
+      - { label: Events, field: category, pattern: events }
+      - { label: Exhibitions, field: category, pattern: exhibitions }
+      - { label: Launches, field: category, pattern: launches }
+      - { label: Social, field: category, pattern: social }
       - { label: Hidden, field: published, pattern: false }
     editor:
       preview: false
@@ -94,50 +95,57 @@ collections:
       - label: Project title
         name: title
         widget: string
-        hint: 'The web address is created from this title. Do not name a project just "Product", "Brand" or "Corporate".'
-      - label: Category
+        hint: 'The web address is created from this title. Do not name a project just "Events", "Exhibitions", "Launches" or "Social".'
+      - label: Service
         name: category
         widget: select
         options:
-          - { label: Product, value: product }
-          - { label: Brand, value: brand }
-          - { label: Corporate, value: corporate }
-      - label: Concept / spec project
+          - { label: Events Coverage, value: events }
+          - { label: Exhibition Coverage, value: exhibitions }
+          - { label: Launches & Openings, value: launches }
+          - { label: Social & Brand Content, value: social }
+      - { label: Client / brand / venue, name: client, widget: string, required: false }
+      - label: Concept / self-initiated project
         name: isConcept
         widget: boolean
-        default: true
-        hint: 'ON if this was NOT a paid job for a real client. Shows a "Concept Project" badge. Be honest — this builds trust.'
-      - label: Client / brand name
-        name: client
-        widget: string
-        required: false
-        hint: Only if the brand gave written permission. Not shown on concept projects.
+        default: false
+        hint: 'Turn ON only if this was NOT a real client job. Shows a "Concept Project" badge.'
       - label: Cover image
         name: coverImage
         widget: object
-        hint: Shown in the portfolio grid and at the top of the project page.
+        hint: Shown in the portfolio and at the top of the project page.
         fields: *photo
       - label: Gallery
         name: gallery
         widget: list
-        min: 6
+        required: false
         max: 12
         collapsed: true
         summary: '{{fields.alt}}'
         label_singular: photo
-        hint: '6–12 photos. Drag to reorder. Tip: upload all photos first in "Media", then add them here one by one.'
+        hint: 'Up to 12 photos. Drag to reorder. Tip: upload all photos first in "Media", then add them here one by one.'
         fields: *photo
-      - { label: 'Brief — Goal', name: goal, widget: text, hint: What was the project trying to achieve? }
-      - { label: 'Brief — Idea', name: idea, widget: text, hint: The creative idea or visual approach. }
-      - { label: 'Brief — Image use', name: usage, widget: text, hint: 'Where the images are used (store, ads, social…).' }
-      - { label: 'Brief — My role', name: role, widget: text, hint: 'What you did (concept, styling, lighting, retouching…).' }
-      - label: Services provided
-        name: services
+      - label: Videos
+        name: videos
         widget: list
-        label_singular: service
         required: false
-        hint: Shown as tags, e.g. Product Photography, Styling, Retouching.
-        field: { label: Service, name: service, widget: string }
+        collapsed: true
+        summary: '{{fields.title}}'
+        label_singular: video
+        hint: 'MP4 only, compressed (under ~15 MB each). The video loads only when a visitor presses play.'
+        fields:
+          - { label: Video file (MP4), name: src, widget: file, media_folder: /public/videos, public_folder: /videos, choose_url: false, pattern: ['^/videos/[\w.-]+\.mp4$', 'Upload an .mp4 file'] }
+          - { label: Title, name: title, widget: string, hint: 'e.g. "Food Africa 2025 — highlight film"' }
+          - { label: Shape, name: orientation, widget: select, default: horizontal, options: [{ label: Horizontal (16:9), value: horizontal }, { label: Vertical reel (9:16), value: vertical }] }
+          - { label: Poster image (still shown before play), name: poster, widget: image, choose_url: false }
+      - { label: Summary, name: summary, widget: text, hint: 'One or two sentences: what the event was and what you covered.' }
+      - label: What we covered
+        name: coverage
+        widget: list
+        label_singular: item
+        required: false
+        hint: Shown as tags, e.g. Event photography, Highlight film, Same-day reels.
+        field: { label: Item, name: item, widget: string }
       - { label: Featured on Home page, name: featured, widget: boolean, default: false }
       - { label: Published (visible on the site), name: published, widget: boolean, default: true }
       - label: Order
@@ -160,21 +168,21 @@ collections:
     # Paths relative to the entry file, so the editor can show thumbnails and Astro can optimize the images.
     media_folder: ../../assets/uploads
     public_folder: ../../assets/uploads
-    description: The three service pages. Their example projects are added automatically from the matching category.
+    description: The four service pages. Their example projects are added automatically from the matching service.
     create: false
     delete: false
     editor:
       preview: false
     files:
       - &service
-        label: Product Photography
-        name: product
-        file: src/content/services/product-photography.yml
+        label: Events Coverage
+        name: events
+        file: src/content/services/events-coverage.yml
         fields:
           - { label: Page title, name: title, widget: string }
-          - { label: Category, name: category, widget: hidden, default: product }
+          - { label: Category, name: category, widget: hidden, default: events }
           - { label: Sort order, name: order, widget: hidden, default: 1 }
-          - { label: Short summary (Home page card), name: cardSummary, widget: text }
+          - { label: Short summary (Home page), name: cardSummary, widget: text }
           - { label: 'What is it? (intro)', name: intro, widget: text }
           - { label: Who it's for, name: whoItsFor, widget: text }
           - label: What you get
@@ -187,13 +195,17 @@ collections:
           - { label: Hero image, name: heroImage, widget: object, fields: *photo }
           - *seo
       - <<: *service
-        label: Brand Photography
-        name: brand
-        file: src/content/services/brand-photography.yml
+        label: Exhibition Coverage
+        name: exhibitions
+        file: src/content/services/exhibition-coverage.yml
       - <<: *service
-        label: Corporate Photography
-        name: corporate
-        file: src/content/services/corporate-photography.yml
+        label: Launches & Openings
+        name: launches
+        file: src/content/services/launches-openings.yml
+      - <<: *service
+        label: Social & Brand Content
+        name: social
+        file: src/content/services/social-brand-content.yml
 
   - name: testimonials
     label: Testimonials
@@ -256,7 +268,7 @@ collections:
           - { label: 'Home — Hero title', name: heroTitle, widget: string }
           - { label: 'Home — Hero subtitle', name: heroSubtitle, widget: text }
           - { label: 'Home — Hero image', name: heroImage, widget: object, fields: *photo }
-          - label: 'Home — Why work with me (3–4 points)'
+          - label: 'Home — Why Shotix (3–4 points)'
             name: whyWorkWithMe
             widget: list
             label_singular: point
@@ -270,8 +282,8 @@ collections:
           # About
           - { label: 'About — Short (Home page)', name: aboutShort, widget: text }
           - { label: 'About — Full text', name: aboutText, widget: text, hint: 'Leave an empty line between paragraphs. 80–120 words is ideal.' }
-          - { label: 'About — How I work (3–4 steps)', name: processSteps, widget: list, label_singular: step, max: 4, summary: '{{fields.title}}', fields: *steps }
-          - { label: 'About — Your photo', name: photographerPhoto, widget: object, fields: *photo }
+          - { label: 'About — How we work (3–4 steps)', name: processSteps, widget: list, label_singular: step, max: 4, summary: '{{fields.title}}', fields: *steps }
+          - { label: 'About — Photo', name: aboutImage, widget: object, fields: *photo }
 
           # Contact
           - label: WhatsApp number
@@ -283,7 +295,8 @@ collections:
           - { label: Email, name: email, widget: string, pattern: ['^[^@\s]+@[^@\s]+\.[^@\s]+$', 'Enter a valid email address'] }
           - { label: Instagram link, name: instagram, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
           - { label: LinkedIn link, name: linkedin, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
-          - { label: Wedding photography site (optional link in footer), name: weddingSiteUrl, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
+          - { label: TikTok link, name: tiktok, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
+          - { label: Facebook link, name: facebook, widget: string, required: false, pattern: ['^(https://.+)?$', 'Full link starting with https://'] }
 
           # Form
           - label: Inquiry form — budget ranges
@@ -293,7 +306,7 @@ collections:
             required: false
             hint: 'Leave EMPTY to hide the budget question. Never put fixed prices here — ranges only, e.g. "5,000–10,000 EGP".'
             field: { label: Range, name: range, widget: string }
-          - label: 'Inquiry form — "How did you hear about me?" options'
+          - label: 'Inquiry form — "How did you hear about us?" options'
             name: leadSources
             widget: list
             label_singular: option

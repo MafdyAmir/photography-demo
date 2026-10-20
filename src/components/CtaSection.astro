@@ -1,58 +1,88 @@
 ---
-/** Every page ends with this: Start a Project + WhatsApp (PRD §5). */
-import WhatsAppIcon from './WhatsAppIcon.astro';
-import { getSettings } from '../lib/content';
+/** Every page ends here: the route line arrives at the inquiry. "Check your date" + the full form (PRD §5). */
+import DateCheck from './DateCheck.astro';
 import { url } from '../lib/url';
-import { whatsappUrl } from '../lib/whatsapp';
 import { t } from '../i18n/en';
 
 interface Props {
   title: string;
   text?: string;
-  whatsappMessage?: string;
-  /** Pre-selects "What do you need?" on the form: product | brand | corporate. */
+  /** Category key: pre-selects "What do you need?" on the contact form. */
   service?: string;
+  /** Service name written into the WhatsApp message. */
+  serviceName?: string;
   /** Analytics label for where the click happened. */
   location: string;
 }
 
-const settings = await getSettings();
-const { title, text, whatsappMessage = settings.whatsappDefaultMessage, service, location } = Astro.props;
+const { title, text, service, serviceName, location } = Astro.props;
 const contactHref = url(service ? `/contact?service=${service}#inquiry` : '/contact');
 ---
 
-<section class="cta section" aria-labelledby={`cta-${location}`}>
-  <div class="container narrow stack" style="--stack: 1.5rem">
-    <h2 id={`cta-${location}`}>{title}</h2>
-    {text && <p class="lead">{text}</p>}
-    <div class="btn-row">
-      <a class="btn" href={contactHref} data-event="start_project_click" data-event-location={location}>
-        {t.common.startProject}
-      </a>
-      <a
-        class="btn btn--whatsapp"
-        href={whatsappUrl(settings.whatsappNumber, whatsappMessage)}
-        target="_blank"
-        rel="noopener"
-        data-event="whatsapp_click"
-        data-event-location={location}
-      >
-        <WhatsAppIcon />
-        {t.common.chatOnWhatsApp}
-      </a>
+<section class="cta route" aria-labelledby={`cta-${location}`}>
+  <div class="container cta__inner">
+    <div class="cta__head">
+      <h2 id={`cta-${location}`}>{title}</h2>
+      {text && <p class="lead">{text}</p>}
+    </div>
+    <div class="cta__desk">
+      <DateCheck service={serviceName} location={location} />
+      <p class="cta__alt">
+        <a class="link-arrow" href={contactHref} data-event="start_project_click" data-event-location={location}>
+          {t.common.startProject}
+        </a>
+        <span class="muted">Full brief? Use the inquiry form.</span>
+      </p>
     </div>
   </div>
 </section>
 
 <style>
   .cta {
-    background: var(--surface-2);
-    text-align: center;
+    padding-block: var(--section);
+    border-block-start: 1px solid var(--line);
   }
-  .cta .narrow {
-    margin-inline: auto;
+  /* The route line ends in a gold stop at the desk. */
+  .cta.route::before {
+    inset-block-end: var(--section);
   }
-  .btn-row {
-    justify-content: center;
+  .cta::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(max(0px, (100% - var(--max)) / 2) + var(--route-x) - 0.45rem + var(--route-w) / 2);
+    inset-block-end: calc(var(--section) - 0.45rem);
+    inline-size: 0.9rem;
+    block-size: 0.9rem;
+    background: var(--gold);
+  }
+  .cta__inner {
+    display: grid;
+    gap: 2.5rem;
+    padding-inline-start: var(--indent);
+  }
+  @media (min-width: 56em) {
+    .cta__inner {
+      grid-template-columns: 1fr 1.1fr;
+      align-items: end;
+      gap: 4rem;
+    }
+  }
+  .cta__head h2 {
+    font-size: var(--step-4);
+    margin-block-end: 1rem;
+  }
+  .cta__desk {
+    padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    background: var(--navy);
+  }
+  .cta__alt {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    align-items: baseline;
+    margin-block-start: 1.25rem;
+    padding-block-start: 1.25rem;
+    border-block-start: 1px solid rgb(255 255 255 / 0.12);
+    font-size: var(--step--1);
   }
 </style>

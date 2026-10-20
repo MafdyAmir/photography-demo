@@ -6,7 +6,7 @@
  */
 import ProjectCard from './ProjectCard.astro';
 import { BASE, url } from '../lib/url';
-import { CATEGORY_LABELS, type Category, type Project } from '../lib/content';
+import { CATEGORY_LABELS, HALLS, type Category, type Project } from '../lib/content';
 import { t } from '../i18n/en';
 
 interface Props {
@@ -15,12 +15,14 @@ interface Props {
   active: Category | 'all';
   /** Titles per filter, so document.title stays right when filtering in place. */
   titles: Record<string, string>;
+  /** Booth code per project id. */
+  codes: Record<string, string>;
 }
 
-const { projects, categories, active, titles } = Astro.props;
-const filters: { key: string; label: string; href: string }[] = [
+const { projects, categories, active, titles, codes } = Astro.props;
+const filters: { key: string; label: string; hall?: string; href: string }[] = [
   { key: 'all', label: t.common.allWork, href: url('/work') },
-  ...categories.map((c) => ({ key: c, label: CATEGORY_LABELS[c], href: url(`/work/${c}`) })),
+  ...categories.map((c) => ({ key: c, label: CATEGORY_LABELS[c], hall: HALLS[c], href: url(`/work/${c}`) })),
 ];
 ---
 
@@ -32,7 +34,8 @@ const filters: { key: string; label: string; href: string }[] = [
           {filters.map((f) => (
             <li>
               <a href={f.href} data-filter={f.key} aria-current={f.key === active ? 'page' : undefined}>
-                {f.label}
+                {f.hall && <b aria-hidden="true">{f.hall}</b>}
+                <span>{f.label}</span>
               </a>
             </li>
           ))}
@@ -45,7 +48,7 @@ const filters: { key: string; label: string; href: string }[] = [
     {
       projects.map((p) => (
         <li data-category={p.data.category} hidden={active !== 'all' && p.data.category !== active}>
-          <ProjectCard project={p} headingLevel="h2" />
+          <ProjectCard project={p} code={codes[p.id]} headingLevel="h2" />
         </li>
       ))
     }
@@ -54,30 +57,58 @@ const filters: { key: string; label: string; href: string }[] = [
 </div>
 
 <style>
+  /* One swipeable row on phones, wrapping on wider screens. */
   .filters ul {
     display: flex;
-    flex-wrap: wrap;
     gap: 0.5rem;
     margin-block-end: 2.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline-end: calc(var(--gutter) * -1);
+    padding-inline-end: var(--gutter);
+  }
+  .filters li {
+    flex: none;
+  }
+  @media (min-width: 48em) {
+    .filters ul {
+      flex-wrap: wrap;
+      overflow: visible;
+      margin-inline-end: 0;
+      padding-inline-end: 0;
+    }
   }
   .filters a {
     display: inline-flex;
-    align-items: center;
+    align-items: stretch;
     min-block-size: 2.75rem;
-    padding: 0.4em 1.1em;
     border: 1px solid var(--line);
-    border-radius: 999px;
     text-decoration: none;
-    font-size: var(--step--1);
-    font-weight: 500;
+    font: 800 var(--step--1) / 1 var(--font-sign);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .filters a > * {
+    display: grid;
+    place-items: center;
+    padding-inline: 0.8em;
+  }
+  .filters b {
+    background: var(--line);
+    color: var(--ink);
+    font-weight: 900;
+    min-inline-size: 2.75rem;
   }
   .filters a:hover {
-    border-color: var(--ink);
+    border-color: var(--gold);
   }
   .filters a[aria-current='page'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--bg);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .filters a[aria-current='page'] b {
+    background: var(--gold);
+    color: var(--on-gold);
   }
   .grid {
     display: grid;
