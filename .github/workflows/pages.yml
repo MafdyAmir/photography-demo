@@ -1,4 +1,4 @@
-# Builds the Astro site and publishes it to GitHub Pages on every push to main.
+# Official Astro GitHub Pages deployment workflow with caching and Bun package manager.
 name: Deploy to GitHub Pages
 
 on:
@@ -19,23 +19,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
         id: pages
-      - uses: actions/setup-node@v4
+
+      - name: Install, build, and upload site
+        uses: withastro/action@v6
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+          package-manager: bun@latest
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
           PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
           PUBLIC_GSC_VERIFICATION: ${{ vars.PUBLIC_GSC_VERIFICATION }}
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
 
   deploy:
     needs: build
@@ -44,5 +43,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
