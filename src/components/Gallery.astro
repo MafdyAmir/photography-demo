@@ -47,6 +47,7 @@ const thumbs = await Promise.all(
             data-src={full[i].src}
             data-srcset={full[i].srcset}
             data-thumb={thumbs[i]}
+            data-lg-size={`${img.src.width}-${img.src.height}`}
             data-sub-html={`<div class="lg-caption"><p class="lg-caption__alt">${img.alt}</p></div>`}
             aria-label={`${t.project.openImage} ${i + 1}: ${img.alt}`}
           >
@@ -178,6 +179,8 @@ const thumbs = await Promise.all(
     lightGallery(grid, {
       selector: '.gallery__item',
       plugins: [lgThumbnail, lgZoom],
+      zoomFromOrigin: true,
+      startAnimationDuration: 350,
       speed: 350,
       download: false,
       counter: true,
