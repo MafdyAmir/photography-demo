@@ -16,8 +16,10 @@ Original brief: `docs/PRD — موقع تصوير تجاري (MVP).md` (Arabic).
   category names are reserved slugs (they're category URLs). Booth codes (e.g. B02) are computed in `getBoothCodes()`.
 - Project videos: compressed MP4s in `public/videos/` + a poster image. `Film.astro` loads the Video.js 10 player
   (`@videojs/html`) on the first press only; `FilmReel.astro` shows them in a Swiper carousel.
-- Swiper (`src/scripts/swiper.ts`, only the modules we use) is imported on demand by `FilmReel` and the `Gallery`
-  lightbox. Page transition: `Iris.astro` (camera shutter, SVG + small script, off for reduced motion).
+- Swiper (`src/scripts/swiper.ts`, only the modules we use) is imported on demand by `FilmReel`
+  for video reels. lightGallery is used by `Gallery.astro` for the project image lightbox (with
+  thumbnails, pinch-zoom, and swipe gestures). Page transition: `Iris.astro` (camera shutter,
+  SVG + small script, off for reduced motion).
 - All images live in `src/assets/uploads/` and are referenced relatively (`../../assets/uploads/x.jpg`)
   so Astro `<Image />` optimizes them at build time.
 - Query content through `src/lib/content.ts` (handles published filter, ordering, slug check).

@@ -30,7 +30,7 @@
 - Service hero photo no longer repeats as a card lower on the page; phone hero shows a one-line summary.
 - Films & reels play in Video.js 10 (`@videojs/html`, gold-themed skin, loaded on first play) and sit in a Swiper
   carousel (`FilmReel.astro`) with one height for every film and one-line booth tags.
-- Lightbox rebuilt on Swiper: swipe, pinch/double-tap zoom, arrow keys, real alt text per photo (loaded on first open).
+- Lightbox powered by lightGallery (with thumbnail strip, pinch/double-tap zoom, swipe gestures, arrow keys, and alt text), while Swiper powers the video reels carousel.
 - Wide project covers keep portrait subjects' heads in frame.
 - Arrow links use a drawn SVG arrow instead of a text glyph.
 
