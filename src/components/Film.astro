@@ -73,20 +73,40 @@ const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56e
   .film__play :global(video) {
     background: #000;
   }
-  /* Video.js skin in the Shotix palette: gold accent, square corners, site font. */
-  .film__play :global(video-skin) {
+  /* Video.js skin in the Shotix palette: gold accent, square corners, full cover fit, site font. */
+  .film__play :global(video-skin),
+  .film__play :global(video-neutral-skin) {
     display: block;
     inline-size: 100%;
     block-size: 100%;
     --media-accent-color: var(--gold);
     --media-accent-text-color: var(--on-gold);
     --media-border-radius: 0;
+    --media-control-radius: 0;
+    --media-controls-radius: 0;
+    --media-video-border-radius: 0;
     --media-border-color: transparent;
     --media-font-family: var(--font-sans);
-    --media-object-fit: contain;
+    --media-object-fit: cover;
+  }
+  .film__play :global(.media-button),
+  .film__play :global(.media-controls),
+  .film__play :global(.media-controls-content),
+  .film__play :global(.video-controls),
+  .film__play :global(.media-slider-track),
+  .film__play :global(.media-slider) {
+    border-radius: 0 !important;
+  }
+  /* Hide intrusive Cast and PiP buttons */
+  .film__play :global(media-cast-button),
+  .film__play :global(media-pip-button),
+  .film__play :global(.media-cast-button),
+  .film__play :global(.media-pip-button) {
+    display: none !important;
   }
   .film__play :global(video-player) {
     display: block;
+    inline-size: 100%;
     block-size: 100%;
   }
   .film__play.is-loading .film__button {
@@ -144,7 +164,7 @@ const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56e
 
 <script>
   // Video.js 10 (@videojs/html) loads on the first press only, so pages with films ship no player code up front.
-  const loadPlayer = () => Promise.all([import('@videojs/html/video/player'), import('@videojs/html/video/skin')]);
+  const loadPlayer = () => Promise.all([import('@videojs/html/video/player'), import('@videojs/html/video/neutral-skin')]);
 
   document.querySelectorAll<HTMLAnchorElement>('[data-film]').forEach((link) => {
     link.addEventListener('click', async (e) => {
@@ -158,7 +178,7 @@ const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56e
         return;
       }
       const player = document.createElement('video-player');
-      const skin = document.createElement('video-skin');
+      const skin = document.createElement('video-neutral-skin');
       const video = document.createElement('video');
       video.src = link.href;
       video.playsInline = true;

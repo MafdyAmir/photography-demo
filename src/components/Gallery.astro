@@ -1,7 +1,8 @@
 ---
 /**
- * Project gallery with lightGallery lightbox:
- * Justified photo grid on page; clicking opens lightGallery with thumbnails bar, pinch/click zoom,
+ * Project gallery with lightGallery lightbox & justified-layout:
+ * Justified photo grid on page (with CSS flex fallback + lightGallery justified-layout enhancement);
+ * clicking opens lightGallery with zoom-from-origin, thumbnails bar, pinch/click zoom,
  * swipe gestures, keyboard arrows, and real alt captions.
  */
 import { getImage } from 'astro:assets';
@@ -11,6 +12,7 @@ import { t } from '../i18n/en';
 import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-zoom.css';
 import 'lightgallery/css/lg-thumbnail.css';
+import 'lightgallery/css/lg-justified.css';
 
 interface Props {
   images: { src: ImageMetadata; alt: string }[];
@@ -37,26 +39,25 @@ const thumbs = await Promise.all(
 ---
 
 <div class="gallery" data-gallery>
-  <ul role="list" class="gallery__grid">
+  <div class="gallery__grid">
     {
       images.map((img, i) => (
-        <li style={`--r: ${(img.src.width / img.src.height).toFixed(3)}`}>
-          <a
-            href={full[i].src}
-            class="gallery__item"
-            data-src={full[i].src}
-            data-srcset={full[i].srcset}
-            data-thumb={thumbs[i]}
-            data-lg-size={`${img.src.width}-${img.src.height}`}
-            data-sub-html={`<div class="lg-caption"><p class="lg-caption__alt">${img.alt}</p></div>`}
-            aria-label={`${t.project.openImage} ${i + 1}: ${img.alt}`}
-          >
-            <Photo image={img} sizes="(min-width: 48em) 50vw, 100vw" />
-          </a>
-        </li>
+        <a
+          href={full[i].src}
+          class="gallery__item"
+          style={`--r: ${(img.src.width / img.src.height).toFixed(3)}`}
+          data-src={full[i].src}
+          data-srcset={full[i].srcset}
+          data-thumb={thumbs[i]}
+          data-lg-size={`${img.src.width}-${img.src.height}`}
+          data-sub-html={`<div class="lg-caption"><p class="lg-caption__alt">${img.alt}</p></div>`}
+          aria-label={`${t.project.openImage} ${i + 1}: ${img.alt}`}
+        >
+          <Photo image={img} sizes="(min-width: 48em) 50vw, 100vw" />
+        </a>
       ))
     }
-  </ul>
+  </div>
 </div>
 
 <style>
@@ -67,17 +68,9 @@ const thumbs = await Promise.all(
     flex-wrap: wrap;
     gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
   }
-  .gallery__grid li {
-    flex: var(--r) 1 calc(var(--r) * 100%);
-  }
-  @media (min-width: 48em) {
-    .gallery__grid li {
-      flex-basis: calc(var(--r) * 18rem);
-    }
-  }
   .gallery__item {
     display: block;
-    inline-size: 100%;
+    flex: var(--r) 1 calc(var(--r) * 100%);
     padding: 0;
     border: 0;
     background: var(--surface);
@@ -85,11 +78,18 @@ const thumbs = await Promise.all(
     text-decoration: none;
     transition: opacity 0.2s ease;
   }
+  @media (min-width: 48em) {
+    .gallery__item {
+      flex-basis: calc(var(--r) * 18rem);
+    }
+  }
   .gallery__item:hover {
     opacity: 0.92;
   }
   .gallery__item :global(img) {
     inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
   }
 
   /* Shotix Studios Exhibition Theme styling for lightGallery */
@@ -170,15 +170,20 @@ const thumbs = await Promise.all(
     const grid = galleryEl.querySelector<HTMLElement>('.gallery__grid');
     if (!grid) return;
 
-    const [{ default: lightGallery }, { default: lgThumbnail }, { default: lgZoom }] = await Promise.all([
+    const [{ default: lightGallery }, { default: lgThumbnail }, { default: lgZoom }, { default: lgJustified }] = await Promise.all([
       import('lightgallery'),
       import('lightgallery/plugins/thumbnail'),
       import('lightgallery/plugins/zoom'),
+      import('lightgallery/plugins/justified'),
     ]);
 
     lightGallery(grid, {
       selector: '.gallery__item',
-      plugins: [lgThumbnail, lgZoom],
+      plugins: [lgThumbnail, lgZoom, lgJustified],
+      justified: true,
+      justifiedRowHeight: 280,
+      justifiedGap: 12,
+      justifiedLastRow: 'start',
       zoomFromOrigin: true,
       startAnimationDuration: 350,
       speed: 350,
