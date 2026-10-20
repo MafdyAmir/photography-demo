@@ -86,6 +86,30 @@ const description = d.seo.description ?? d.summary.slice(0, 160);
         </section>
       )
     }
+
+    {
+      related.length > 0 && (
+        <section class="section related" aria-labelledby="related">
+          <div class="container indent">
+            <div class="section-head">
+              <h2 id="related">
+                {t.project.related} {CATEGORY_LABELS[d.category]}
+              </h2>
+              <a class="link-arrow" href={url(`/work/${d.category}`)}>
+                {t.common.seeAll}
+              </a>
+            </div>
+            <ul role="list" class="related__grid">
+              {related.map((p) => (
+                <li>
+                  <ProjectCard project={p} code={codes.get(p.id)} sizes="(min-width: 48em) 50vw, 100vw" />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
   </article>
 
   <CtaSection
@@ -95,30 +119,6 @@ const description = d.seo.description ?? d.summary.slice(0, 160);
     serviceName={service?.data.title}
     location="project"
   />
-
-  {
-    related.length > 0 && (
-      <section class="section related" aria-labelledby="related">
-        <div class="container indent">
-          <div class="section-head">
-            <h2 id="related">
-              {t.project.related} {CATEGORY_LABELS[d.category]}
-            </h2>
-            <a class="link-arrow" href={url(`/work/${d.category}`)}>
-              {t.common.seeAll}
-            </a>
-          </div>
-          <ul role="list" class="related__grid">
-            {related.map((p) => (
-              <li>
-                <ProjectCard project={p} code={codes.get(p.id)} sizes="(min-width: 48em) 50vw, 100vw" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    )
-  }
 </BaseLayout>
 
 <style>
@@ -204,8 +204,12 @@ const description = d.seo.description ?? d.summary.slice(0, 160);
   .gallery {
     padding-block-end: var(--section);
   }
+  .gallery:has(+ .related) {
+    padding-block-end: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  }
   .related {
     border-block-start: 1px solid var(--line);
+    padding-block: var(--section);
   }
   .related__grid {
     display: grid;

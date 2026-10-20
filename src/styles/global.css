@@ -279,18 +279,26 @@ ol[role='list'] {
   pointer-events: none;
 }
 @supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 48.01em) {
     .route::before {
       animation: route-draw linear both;
       animation-timeline: view();
       animation-range: cover 0% cover 85%;
     }
+  }
+  @media (prefers-reduced-motion: no-preference) {
     /* Booth codes light up as the line reaches them. */
     .route .booth-tag > b {
       animation: booth-lit linear both;
       animation-timeline: view();
       animation-range: entry 20% entry 90%;
     }
+  }
+}
+@media (max-width: 48em) {
+  .route::before {
+    animation: none !important;
+    transform: none !important;
   }
 }
 @keyframes route-draw {

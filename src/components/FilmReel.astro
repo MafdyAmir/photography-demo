@@ -53,6 +53,15 @@ const { films } = Astro.props;
 </div>
 
 <style>
+  .reel {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    overflow: hidden;
+  }
+  .reel__track {
+    inline-size: 100%;
+    max-inline-size: 100%;
+  }
   .reel__track:not(.swiper-initialized) .swiper-wrapper {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -60,12 +69,28 @@ const { films } = Astro.props;
   }
   .reel__slide {
     inline-size: auto;
+    max-inline-size: 100%;
     scroll-snap-align: start;
+    box-sizing: border-box;
+  }
+  .reel__slide :global(.film) {
+    max-inline-size: 100%;
   }
   /* One height for every film; vertical reels come out narrow, wide films wide. */
   .reel__slide :global(.film__play) {
     block-size: clamp(13rem, 52vw, 24rem);
     inline-size: auto;
+    max-inline-size: 100%;
+  }
+  /* On mobile: horizontal films must never exceed available container width */
+  @media (max-width: 48em) {
+    .reel__slide :global(.film--horizontal),
+    .reel__slide :global(.film--horizontal .film__play) {
+      inline-size: calc(100vw - var(--indent) - var(--gutter));
+      max-inline-size: 100%;
+      block-size: auto;
+      aspect-ratio: 16 / 9;
+    }
   }
   /* Captions wrap to the film's width instead of widening the slide. */
   .reel__slide :global(.film__caption) {
@@ -128,7 +153,8 @@ const { films } = Astro.props;
       keyboard: { enabled: true, onlyInViewport: true },
       navigation: { prevEl: root.querySelector<HTMLElement>('[data-prev]'), nextEl: root.querySelector<HTMLElement>('[data-next]') },
       // Let the Video.js controls take drags (scrubbing) instead of the carousel.
-      noSwipingSelector: 'video-player',
+      noSwiping: true,
+      noSwipingSelector: 'video-player, video-neutral-skin, [data-theme], .is-playing',
       breakpoints: { 768: { spaceBetween: 24 } },
     });
   };

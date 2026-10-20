@@ -78,16 +78,21 @@ const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56e
   .film__play :global(video-neutral-skin) {
     display: block;
     inline-size: 100%;
+    max-inline-size: 100%;
     block-size: 100%;
     --media-accent-color: var(--gold);
     --media-accent-text-color: var(--on-gold);
-    --media-border-radius: 0;
-    --media-control-radius: 0;
-    --media-controls-radius: 0;
-    --media-video-border-radius: 0;
+    --media-border-radius: 0px;
+    --media-control-radius: 0px;
+    --media-controls-radius: 0px;
+    --media-dialog-radius: 0px;
+    --media-menu-item-radius: 0px;
+    --media-popup-radius: 0px;
+    --media-video-border-radius: 0px;
     --media-border-color: transparent;
     --media-font-family: var(--font-sans);
     --media-object-fit: cover;
+    --media-scale-unit: clamp(0.72rem, 0.65rem + 0.35vw, 0.95rem);
   }
   .film__play :global(.media-button),
   .film__play :global(.media-controls),
@@ -107,6 +112,7 @@ const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56e
   .film__play :global(video-player) {
     display: block;
     inline-size: 100%;
+    max-inline-size: 100%;
     block-size: 100%;
   }
   .film__play.is-loading .film__button {
@@ -185,6 +191,33 @@ const { src, title, poster, orientation = 'horizontal', sizes = '(min-width: 56e
       video.setAttribute('aria-label', link.dataset.title ?? '');
       skin.append(video);
       player.append(skin);
+
+      // Inject clean skin overrides directly into the open shadowRoot
+      if (skin.shadowRoot) {
+        const style = document.createElement('style');
+        style.textContent = `
+          media-cast-button,
+          media-pip-button,
+          media-airplay-button {
+            display: none !important;
+          }
+          .media-button,
+          .media-controls,
+          .media-controls-content,
+          .video-controls,
+          .media-slider,
+          .media-slider-track,
+          .media-slider-thumb {
+            border-radius: 0 !important;
+          }
+          .video-controls-content {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+            padding-inline: 0.5rem !important;
+          }
+        `;
+        skin.shadowRoot.appendChild(style);
+      }
       const holder = document.createElement('div');
       // Keep the class and Astro's scoped-style attribute so the frame keeps its shape.
       for (const { name, value } of link.attributes) {
